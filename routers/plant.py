@@ -16,16 +16,3 @@ def update_plant_info():
 
 def delete_plant():
     pass
-
-# reminders
-def get_reminder_list():
-    pass
-
-def create_reminder():
-    pass
-
-def update_reminder():
-    pass
-
-def remove_reminder():
-    pass

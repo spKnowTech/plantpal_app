@@ -1,8 +1,8 @@
 import jwt
 from datetime import datetime, timedelta, timezone
-from backend.schemas import users
-from backend import database
-from backend import models
+from schemas import user
+import database
+import models
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -28,7 +28,7 @@ def varify_access_token(token: str, credential_exception):
         user_id = payload.get("user_id")
         if user_id is None:
             raise credential_exception
-        token_data = users.TokenData(id=str(user_id))
+        token_data = user.TokenData(id=str(user_id))
     except Exception:
         raise credential_exception
     return token_data

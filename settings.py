@@ -1,6 +1,6 @@
+# App configuration
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
-from typing import Optional
 load_dotenv()
 
 
@@ -12,6 +12,7 @@ class ConfigSettings(BaseSettings):
     db_username: str
     secret_key: str
     algorithm: str
+    open_api_key: str
     access_token_expire_minutes: int
 
     class Config:

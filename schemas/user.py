@@ -10,11 +10,19 @@ class CreateUser(BaseModel):
     location: str
 
 
-class UserLogin(BaseModel):
+class LoginUser(BaseModel):
     email: EmailStr
     password: str
 
+class ResponseUser(BaseModel):
+    id: int
+    full_name: str
+    email: EmailStr
+    location: str
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
 
+# token schemas
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -24,11 +32,4 @@ class TokenData(BaseModel):
     id: Optional[str] = None
 
 
-class ResponseUser(BaseModel):
-    id: int
-    full_name: str
-    email: EmailStr
-    location: str
-    created_at: datetime
-    model_config = ConfigDict(from_attributes=True)
 

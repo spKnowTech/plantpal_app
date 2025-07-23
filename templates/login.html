@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Login – PlantPal{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+<form method="post">
+    <label>Email:</label><br>
+    <input name="email" type="email" required><br><br>
+
+    <label>Password:</label><br>
+    <input name="password" type="password" required><br><br>
+
+    <input type="submit" value="Login">
+</form>
+
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+{% endblock %}
