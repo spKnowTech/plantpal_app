@@ -1,8 +1,8 @@
 import jwt
 from datetime import datetime, timedelta, timezone
-from schemas import user
+from schemas.user import TokenData
 import database
-import models
+from models.user import User
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -28,7 +28,7 @@ def varify_access_token(token: str, credential_exception):
         user_id = payload.get("user_id")
         if user_id is None:
             raise credential_exception
-        token_data = user.TokenData(id=str(user_id))
+        token_data = TokenData(id=str(user_id))
     except Exception:
         raise credential_exception
     return token_data
@@ -40,5 +40,5 @@ def get_current_user(token: str = Depends(oauth2_scheme),
                                          detail="Could not validate credentials",
                                          headers={"WWW-Authenticate": "Bearer"})
     token = varify_access_token(token, credential_exception)
-    user = db.query(models.User).filter(models.User.id == token.id).first()
+    user = db.query(User).filter(User.id == token.id).first()
     return user
