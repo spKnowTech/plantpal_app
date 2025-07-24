@@ -1,12 +1,9 @@
-# Handles natural language like "Add Ficus"
-import re
+# Extracts intent (e.g., “Water my Monstera”, “Diagnose this plant”) from user commands.
 
-def parse_command(message: str) -> dict:
-    """Parses messages like 'Add Ficus' or 'Remove Aloe'"""
-    match = re.match(r"(add|remove)\s+(?P<plant>[\w\s]+)", message, re.IGNORECASE)
-    if match:
-        return {
-            "action": match.group(1).lower(),
-            "plant_name": match.group("plant").strip()
-        }
-    return {}
+
+def parse_command(text):
+    text = text.lower()
+    if "diagnose" in text or "what's wrong" in text:
+        return "diagnosis"
+    # Add more commands as needed
+    return "chat"

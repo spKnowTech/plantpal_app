@@ -1,20 +1,69 @@
-{% extends "base.html" %}
-
-{% block title %}Login – PlantPal{% endblock %}
-
+{% extends 'base.html' %}
+{% block css %}
+<style>
+  body {
+    background: linear-gradient(135deg, #cce5cc, #8ebf87);
+  }
+  .login-container {
+    max-width: 400px;
+    background: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    margin: 3rem auto;
+    text-align: center; /* center text for the new link */
+  }
+  .login-container h2 {
+    color: #2f5233;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+  .form-control:focus {
+    border-color: #4a7c37;
+    box-shadow: none;
+  }
+  .btn-login {
+    background-color: #4a7c37;
+    color: white;
+    font-weight: 600;
+  }
+  .btn-login:hover {
+    background-color: #37602b;
+  }
+  .create-account-text {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #2f5233;
+  }
+  .create-account-text a {
+    color: #4a7c37;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 0.3rem;
+  }
+  .create-account-text a:hover {
+    text-decoration: underline;
+    color: #37602b;
+  }
+</style>
+{% endblock %}
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-    <label>Email:</label><br>
-    <input name="email" type="email" required><br><br>
-
-    <label>Password:</label><br>
-    <input name="password" type="password" required><br><br>
-
-    <input type="submit" value="Login">
-</form>
-
-{% if error %}
-    <p style="color:red;">{{ error }}</p>
-{% endif %}
+<div class="login-container">
+  <h2>Login to PlantPal</h2>
+  <form>
+    <div class="mb-3">
+      <label for="email" class="form-label fw-semibold">Email address</label>
+      <input type="email" class="form-control" id="email" placeholder="your.email@example.com" required>
+    </div>
+    <div class="mb-4">
+      <label for="password" class="form-label fw-semibold">Password</label>
+      <input type="password" class="form-control" id="password" placeholder="********" required>
+    </div>
+    <button type="submit" class="btn btn-login w-100">Login</button>
+  </form>
+  <div class="create-account-text">
+    Don't have an account?
+    <a href="/register">Create</a>
+  </div>
+</div>
 {% endblock %}

@@ -1,13 +1,14 @@
-# Handles actual OpenAI API calls
-import openai
-from settings import Setting  # Make sure your API key is stored in settings.py
+# Handles direct calls to the OpenAI API.
+import os
+from openai import OpenAI
+from settings import Setting
 
-openai.api_key = Setting.open_api_key
 
-def ask_openai(prompt: str) -> str:
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
+client = OpenAI(api_key=Setting.open_ai_key)
+
+def chat_with_gpt(messages, model="gpt-4o-mini"):
+    response = client.chat.completions.create(
+        model=model,
+        messages=messages
     )
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content

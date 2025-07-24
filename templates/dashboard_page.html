@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block css %}
+<style>
+  .dashboard-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .calendar {
+    flex: 1 1 320px;
+    background: #daf2d4;
+    border-radius: 15px;
+    padding: 1rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  }
+  .calendar h3 {
+    color: #2f5233;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .calendar table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .calendar th, .calendar td {
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .calendar th {
+    color: #4a7c37;
+  }
+  .calendar td {
+    cursor: default;
+  }
+  .calendar td.today {
+    background-color: #4a7c37;
+    color: white;
+  }
+  .plant-list {
+    flex: 2 1 450px;
+    background: #f6fff3;
+    border-radius: 15px;
+    padding: 1rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  .plant-list h3 {
+    color: #2f5233;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .plant-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+  .plant-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  .plant-item .plant-name {
+    font-weight: 600;
+    color: #37602b;
+    font-size: 1.1rem;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+  <aside class="calendar" aria-label="Monthly calendar">
+    <h3>July 2025</h3>
+    <table aria-label="Calendar">
+      <thead>
+        <tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td><td></td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+        </tr>
+        <tr>
+          <td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td>
+        </tr>
+        <tr>
+          <td>13</td><td>14</td><td>15</td><td>16</td><td class="today">17</td><td>18</td><td>19</td>
+        </tr>
+        <tr>
+          <td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td>
+        </tr>
+        <tr>
+          <td>27</td><td>28</td><td>29</td><td>30</td><td>31</td><td></td><td></td>
+        </tr>
+      </tbody>
+    </table>
+  </aside>
+
+  <section class="plant-list" aria-label="List of plants">
+    <h3>Your Plants</h3>
+    <!-- Example plants -->
+    <div class="plant-item">
+      <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=100&q=80" alt="Ficus Plant" />
+      <div class="plant-name">Ficus</div>
+    </div>
+    <div class="plant-item">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=100&q=80" alt="Succulent Plant" />
+      <div class="plant-name">Succulent</div>
+    </div>
+    <div class="plant-item">
+      <img src="https://images.unsplash.com/photo-1516199424820-7f4eea327a3d?auto=format&fit=crop&w=100&q=80" alt="Monstera" />
+      <div class="plant-name">Monstera</div>
+    </div>
+    <div class="plant-item">
+      <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=100&q=80" alt="Aloe Vera" />
+      <div class="plant-name">Aloe Vera</div>
+    </div>
+  </section>
+</div>
+{% endblock %}

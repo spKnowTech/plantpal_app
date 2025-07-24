@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block css %}
+<style>
+  .hero-section {
+    background-color: #daf2d4;
+    border-radius: 15px;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .hero-text h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 3.5rem;
+    color: #2f5233; /* Dark green */
+  }
+  .hero-text p {
+    font-size: 1.25rem;
+    color: #4a7c37; /* Medium green */
+  }
+  .btn-plantpal {
+    background-color: #4a7c37;
+    color: white;
+    font-weight: 600;
+    padding: 0.7rem 1.8rem;
+    border-radius: 30px;
+  }
+  .btn-plantpal:hover {
+    background-color: #37602b;
+  }
+  .hero-image img {
+    max-width: 22rem;
+    border-radius: 15px;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 767px) {
+    .hero-section {
+      flex-direction: column;
+      text-align: center;
+    }
+    .hero-image img {
+      max-width: 80vw;
+      margin-top: 2rem;
+    }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="hero-section">
+  <div class="hero-text flex-grow-1">
+    <h1>Welcome to PlantPal</h1>
+    <p>Your personalized AI assistant for plant care and gardening tips.</p>
+    <a href="/dashboard" class="btn btn-plantpal mt-3">Get Started</a>
+  </div>
+  <div class="hero-image">
+    <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80" alt="Plant Image" />
+  </div>
+</div>
+{% endblock %}

@@ -1,29 +1,53 @@
-{% extends "base.html" %}
-
-{% block title %}Create Profile – PlantPal{% endblock %}
-
+{% extends 'base.html' %}
+{% block css %}
+<style>
+  body {
+    background: linear-gradient(135deg, #cce5cc, #8ebf87);
+  }
+  .profile-container {
+    max-width: 500px;
+    background: white;
+    padding: 2rem 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    margin: 3rem auto;
+  }
+  .profile-container h2 {
+    color: #2f5233;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+  .form-control:focus {
+    border-color: #4a7c37;
+    box-shadow: none;
+  }
+  .btn-save {
+    background-color: #4a7c37;
+    color: white;
+    font-weight: 600;
+  }
+  .btn-save:hover {
+    background-color: #37602b;
+  }
+</style>
+{% endblock %}
 {% block content %}
-<h2>Create an Account</h2>
-<form method="post">
-    <label>Full name:</label><br>
-    <input name="full_name" type="text" required><br><br>
-
-    <label>Email:</label><br>
-    <input name="email" type="email" required><br><br>
-
-    <label>Password:</label><br>
-    <input name="password" type="password" required><br><br>
-
-    <label>Confirm Password:</label><br>
-    <input name="confirm_password" type="password" required><br><br>
-
-    <label>Location:</label><br>
-    <input name="location" type="text" required><br><br>
-
-    <input type="submit" value="Submit">
-</form>
-
-{% if error %}
-    <p style="color:red;">{{ error }}</p>
-{% endif %}
+<div class="profile-container">
+  <h2>Your Profile</h2>
+  <form>
+    <div class="mb-3">
+      <label for="name" class="form-label fw-semibold">Full Name</label>
+      <input type="text" class="form-control" id="name" placeholder="Your Name" value="Jane Doe" required>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label fw-semibold">Email address</label>
+      <input type="email" class="form-control" id="email" value="jane.doe@example.com" required>
+    </div>
+    <div class="mb-4">
+      <label for="password" class="form-label fw-semibold">Change Password</label>
+      <input type="password" class="form-control" id="password" placeholder="New Password">
+    </div>
+    <button type="submit" class="btn btn-save w-100">Save Changes</button>
+  </form>
+</div>
 {% endblock %}

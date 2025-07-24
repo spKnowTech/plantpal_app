@@ -12,7 +12,7 @@ class ConfigSettings(BaseSettings):
     db_username: str
     secret_key: str
     algorithm: str
-    open_api_key: str
+    open_ai_key: str
     access_token_expire_minutes: int
 
     class Config:

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from schemas.plant import PlantCreate, PlantResponse, PlantUpdate
 import services.plant_service as plant_service
 from database import get_db
-from oauth2 import get_current_user
+from services.user_service import get_current_user
 from schemas.user import ResponseUser
 from fastapi.templating import Jinja2Templates
 

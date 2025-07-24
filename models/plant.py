@@ -28,3 +28,27 @@ class Plant(Base):
     logs = relationship("CareLog", back_populates="plant", cascade="all, delete")
     ai_logs = relationship("AILog", back_populates="plant")
 
+
+class PlantPhoto(Base):
+    __tablename__ = 'plant_photos'
+
+    id = Column(Integer, primary_key=True)
+    plant_id = Column(Integer, ForeignKey('plants.id', ondelete='CASCADE'))
+    image_path = Column(Text, nullable=False)
+    diagnosis = Column(Text)
+    uploaded_at = Column(TIMESTAMP(timezone=True), nullable=False,
+                         server_default=text('now()'))
+
+    plant = relationship("Plant", back_populates="photos")
+
+
+class CareLog(Base):
+    __tablename__ = 'care_logs'
+
+    id = Column(Integer, primary_key=True)
+    plant_id = Column(Integer, ForeignKey('plants.id', ondelete='CASCADE'))
+    task_type = Column(String(50), CheckConstraint("task_type IN ('water', 'fertilize', 'prune', 'rotate')"))
+    performed_on = Column(Date, nullable=False)
+    notes = Column(Text)
+
+    plant = relationship("Plant", back_populates="logs")
