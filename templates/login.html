@@ -50,20 +50,23 @@
 {% block content %}
 <div class="login-container">
   <h2>Login to PlantPal</h2>
-  <form>
+  {% if error %}
+        <div style="color: red;">{{ error }}</div>
+    {% endif %}
+  <form method="post" action="/login">
     <div class="mb-3">
       <label for="email" class="form-label fw-semibold">Email address</label>
-      <input type="email" class="form-control" id="email" placeholder="your.email@example.com" required>
+      <input type="email" class="form-control" id="email" name="email" placeholder="your.email@example.com" required>
     </div>
     <div class="mb-4">
       <label for="password" class="form-label fw-semibold">Password</label>
-      <input type="password" class="form-control" id="password" placeholder="********" required>
+      <input type="password" class="form-control" id="password" name="password" placeholder="********" required>
     </div>
     <button type="submit" class="btn btn-login w-100">Login</button>
   </form>
   <div class="create-account-text">
     Don't have an account?
-    <a href="/register">Create</a>
+    <a href="/register">Register Here</a>
   </div>
 </div>
 {% endblock %}

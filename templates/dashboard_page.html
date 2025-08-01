@@ -38,37 +38,92 @@
     background-color: #4a7c37;
     color: white;
   }
-  .plant-list {
+  .plant-section {
     flex: 2 1 450px;
     background: #f6fff3;
     border-radius: 15px;
     padding: 1rem;
     box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-    max-height: 600px;
-    overflow-y: auto;
   }
-  .plant-list h3 {
+  .plant-section h3 {
     color: #2f5233;
     font-weight: 700;
     margin-bottom: 1rem;
+  }
+  .add-plant-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #e8f5e8;
+    border-radius: 10px;
+    align-items: center;
+  }
+  .add-plant-form input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #4a7c37;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+  }
+  .add-plant-form input:focus {
+    outline: none;
+    border-color: #2f5233;
+    box-shadow: 0 0 0 3px rgba(47, 82, 51, 0.1);
+  }
+  .add-plant-form button {
+    padding: 0.75rem 1.5rem;
+    background: #4a7c37;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .add-plant-form button:hover {
+    background: #2f5233;
+  }
+  .plant-list {
+    max-height: 400px;
+    overflow-y: auto;
   }
   .plant-item {
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
     gap: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
   .plant-item img {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .plant-item .plant-info {
+    flex: 1;
   }
   .plant-item .plant-name {
     font-weight: 600;
     color: #37602b;
     font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  .plant-item .plant-location {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  .no-plants {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 2rem;
   }
 </style>
 {% endblock %}
@@ -100,24 +155,33 @@
     </table>
   </aside>
 
-  <section class="plant-list" aria-label="List of plants">
+  <section class="plant-section" aria-label="Plant management">
     <h3>Your Plants</h3>
-    <!-- Example plants -->
-    <div class="plant-item">
-      <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=100&q=80" alt="Ficus Plant" />
-      <div class="plant-name">Ficus</div>
-    </div>
-    <div class="plant-item">
-      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=100&q=80" alt="Succulent Plant" />
-      <div class="plant-name">Succulent</div>
-    </div>
-    <div class="plant-item">
-      <img src="https://images.unsplash.com/photo-1516199424820-7f4eea327a3d?auto=format&fit=crop&w=100&q=80" alt="Monstera" />
-      <div class="plant-name">Monstera</div>
-    </div>
-    <div class="plant-item">
-      <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=100&q=80" alt="Aloe Vera" />
-      <div class="plant-name">Aloe Vera</div>
+    
+    <!-- Add Plant Form -->
+    <form class="add-plant-form" method="post" action="/dashboard/add_plant">
+      <input type="text" name="plant_name" placeholder="Plant Name" required>
+      <input type="text" name="location" placeholder="Location" required>
+      <button type="submit">Add Plant</button>
+    </form>
+
+    <!-- Plant List -->
+    <div class="plant-list">
+      {% if plants %}
+        {% for plant in plants %}
+        <div class="plant-item">
+          <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=100&q=80" alt="{{ plant.name }}" />
+          <div class="plant-info">
+            <div class="plant-name">{{ plant.name }}</div>
+            <div class="plant-location">{{ plant.location }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-plants">
+          No plants added yet. Add your first plant above!
+        </div>
+      {% endif %}
     </div>
   </section>
 </div>

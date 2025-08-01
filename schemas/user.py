@@ -4,32 +4,23 @@ from typing import Optional
 
 
 class CreateUser(BaseModel):
+    """Model for user registration."""
     full_name: str
     email: EmailStr
     password: str
-    location: str
+    location: Optional[str] = None
 
 
 class LoginUser(BaseModel):
+    """Model for user login."""
     email: EmailStr
     password: str
 
 class ResponseUser(BaseModel):
+    """Response model for user data."""
     id: int
     full_name: str
     email: EmailStr
-    location: str
+    location: Optional[str] = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
-
-# token schemas
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    id: Optional[str] = None
-
-
-

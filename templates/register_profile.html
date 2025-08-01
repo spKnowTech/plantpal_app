@@ -1,53 +1,70 @@
 {% extends 'base.html' %}
 {% block css %}
 <style>
-  body {
-    background: linear-gradient(135deg, #cce5cc, #8ebf87);
-  }
-  .profile-container {
-    max-width: 500px;
-    background: white;
-    padding: 2rem 2.5rem;
-    border-radius: 15px;
-    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
-    margin: 3rem auto;
-  }
-  .profile-container h2 {
-    color: #2f5233;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-  }
-  .form-control:focus {
-    border-color: #4a7c37;
-    box-shadow: none;
-  }
-  .btn-save {
-    background-color: #4a7c37;
-    color: white;
-    font-weight: 600;
-  }
-  .btn-save:hover {
-    background-color: #37602b;
-  }
+    body {
+      background: linear-gradient(135deg, #cce5cc, #8ebf87);
+    }
+    .profile-container {
+      max-width: 500px;
+      background: white;
+      padding: 2rem 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+      margin: 3rem auto;
+    }
+    .profile-container h2 {
+      color: #2f5233;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+    .form-control:focus {
+      border-color: #4a7c37;
+      box-shadow: none;
+    }
+    .btn-save {
+      background-color: #4a7c37;
+      color: white;
+      font-weight: 600;
+    }
+    .btn-save:hover {
+      background-color: #37602b;
+    }
 </style>
 {% endblock %}
 {% block content %}
 <div class="profile-container">
-  <h2>Your Profile</h2>
-  <form>
-    <div class="mb-3">
-      <label for="name" class="form-label fw-semibold">Full Name</label>
-      <input type="text" class="form-control" id="name" placeholder="Your Name" value="Jane Doe" required>
-    </div>
-    <div class="mb-3">
-      <label for="email" class="form-label fw-semibold">Email address</label>
-      <input type="email" class="form-control" id="email" value="jane.doe@example.com" required>
-    </div>
-    <div class="mb-4">
-      <label for="password" class="form-label fw-semibold">Change Password</label>
-      <input type="password" class="form-control" id="password" placeholder="New Password">
-    </div>
-    <button type="submit" class="btn btn-save w-100">Save Changes</button>
-  </form>
+    <h2>Your Profile</h2>
+    {% if error %}
+    <div style="color: red;">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/register">
+        <div class="mb-3">
+            <label for="full_name" class="form-label fw-semibold">Full Name</label>
+            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Your Name" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label fw-semibold">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="jane.doe@example.com"
+                   required>
+        </div>
+        <div class="mb-4">
+            <label for="password" class="form-label fw-semibold">Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="New Password">
+        </div>
+        <div class="mb-4">
+            <label for="confirm_password" class="form-label fw-semibold">Password</label>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                   placeholder="Confirm Password" autocomplete="new-password">
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label fw-semibold">Location</label>
+            <input type="text" class="form-control" id="location" name="location" placeholder="City, Country" required>
+        </div>
+        <button type="submit" class="btn btn-save w-100">Register</button>
+        <div class="create-account-text">
+            Already have an account?
+            <a href="/login">Login Here</a>
+        </div>
+    </form>
 </div>
 {% endblock %}

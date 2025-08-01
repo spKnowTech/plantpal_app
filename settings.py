@@ -13,7 +13,7 @@ class ConfigSettings(BaseSettings):
     secret_key: str
     algorithm: str
     open_ai_key: str
-    access_token_expire_minutes: int
+    access_token_expire_minutes: int = 720  # 12 hours default
 
     class Config:
         env_file = ".env"

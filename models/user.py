@@ -1,11 +1,10 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, TIMESTAMP, text
 from database import Base
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.sqltypes import TIMESTAMP
-from sqlalchemy.sql.expression import text
 
 
 class User(Base):
+    """Represents an application user."""
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, nullable=False)
@@ -16,5 +15,6 @@ class User(Base):
     created_at = Column(TIMESTAMP(timezone=True), nullable=False,
                         server_default=text('now()'))
 
-    plants = relationship("Plant", back_populates="user", cascade="all, delete")
+    plant = relationship("Plant", back_populates="user", cascade="all, delete")
     ai_logs = relationship("AILog", back_populates="user", cascade="all, delete")
+    ai_responses = relationship("AIResponse", back_populates="user", cascade="all, delete")

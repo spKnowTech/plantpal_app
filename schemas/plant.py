@@ -1,33 +1,37 @@
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel
 from typing import Optional
 
 
 class PlantBase(BaseModel):
+    """Base model for plant data."""
     name: str
-    species: Optional[str]
-    nickname: Optional[str]
-    location: Optional[str]
-    sunlight: Optional[str]
-    watering_interval_days: Optional[int]
-    fertilizing_interval_days: Optional[int]
-    last_watered: Optional[date]
-    last_fertilized: Optional[date]
-    notes: Optional[str]
+    species: Optional[str] = None
+    nickname: Optional[str] = None
+    location: Optional[str] = None
+    sunlight: Optional[str] = None
+    watering_interval_days: Optional[int] = None
+    fertilizing_interval_days: Optional[int] = None
+    last_watered: Optional[date] = None
+    last_fertilized: Optional[date] = None
+    notes: Optional[str] = None
 
 
 class PlantCreate(PlantBase):
+    """Model for creating a new plant."""
     pass
 
 
 class PlantUpdate(PlantBase):
+    """Model for updating plant details."""
     pass
 
 
 class PlantResponse(PlantBase):
+    """Response model for plant data."""
     id: int
     user_id: int
-    created_at: date
+    created_at: datetime
 
     class Config:
         orm_mode = True
