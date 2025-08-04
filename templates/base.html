@@ -1,31 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>{% block title %}PlantPal{% endblock %}</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
-        header { margin-bottom: 20px; }
-        footer { margin-top: 40px; font-size: 0.9em; color: #888; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    {% block css %}{% endblock %}
 </head>
 <body>
-
-<header>
-    <h1>🌱 PlantPal</h1>
-    <nav>
-        <a href="/register">Create Profile</a> |
-        <a href="/login">Login</a>
-    </nav>
-</header>
-
-<main>
+<nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <a href="/" style="color:inherit;text-decoration:none;">
+            <img src="/static/images/logo.jpg" alt="PlantPal Logo" class="navbar-logo">
+        </a>
+    </div>
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link{% if request.url.path == '/' %} active{% endif %}" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link{% if request.url.path.startswith('/dashboard') %} active{% endif %}" href="{% if not user %}/login{% else %}/dashboard{% endif %}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link{% if request.url.path.startswith('/ai_chat') %} active{% endif %}" href="{% if not user %}/login{% else %}/ai_chat{% endif %}">PlantPal Bot</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link{% if request.url.path.startswith('/about') %} active{% endif %}" href="/about">About</a>
+        </li>
+        {% if user %}
+        <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+            <a class="nav-link{% if request.url.path.startswith('/login') %} active{% endif %}" href="/login">Login</a>
+        </li>
+        {% endif %}
+      </ul>
+</nav>
+{% if message %}
+<div class="alert alert-{{ message_type or 'info' }} text-center" role="alert">
+    {{ message }}
+</div>
+{% endif %}
+<div class="container-fluid p-0">
     {% block content %}{% endblock %}
-</main>
-
-<footer>
-    <p>&copy; 2025 PlantPal. All rights reserved.</p>
-</footer>
-
+</div>
 </body>
 </html>

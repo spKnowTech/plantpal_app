@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block css %}
+<link rel="stylesheet" href="/static/css/home_page.css">
+{% endblock css %}
+{% block content %}
+<div class="hero-section">
+  <div class="hero-text">
+    <h1>Welcome to PlantPal</h1>
+    <div class="hero-subtitle-container">
+      <p class="hero-subtitle">
+        Enhance your gardening experience with PlantPal, your intelligent AI companion. Combining advanced AI with expert horticultural knowledge, PlantPal offers personalized care tips, real-time health monitoring, custom watering schedules, disease detection, and growth tracking. Whether you're a beginner or a pro, PlantPal helps your plants thrive in any environment.
+      </p>
+    </div>
+    
+    <div class="hero-features">
+      <div class="feature-item">
+        <i class="fas fa-leaf"></i>
+        <span>Smart Plant Identification</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-robot"></i>
+        <span>AI-Powered Care Tips</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Watering Schedules</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-chart-line"></i>
+        <span>Growth Tracking</span>
+      </div>
+    </div>
+    
+    <div class="hero-cta">
+      <a href="{% if not user %}/login{% else %}/dashboard{% endif %}" class="btn btn-plantpal">Get Started</a>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img src="/static/images/plantpal_home.jpg" alt="PlantPal Logo" />
+  </div>
+</div>
+{% endblock %}

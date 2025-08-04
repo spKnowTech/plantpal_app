@@ -1,20 +1,99 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Login – PlantPal{% endblock %}
+{% block css %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<style>
+  .bg-tropical {
+    background-image: url('/static/images/login_plantpal.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+  .header-bg {
+    background-color: #D1E7DD;
+  }
+  .btn-green {
+    background-color: #276749;
+    color: white;
+  }
+  .btn-green:hover {
+    background-color: #276749;
+  }
+  .login-title {
+    color: #2d7151 !important;
+    font-size: 3rem !important;
+    margin: 2.5rem 0 !important;
+    width: 100% !important;
+  }
+  .login-container {
+    height: 60vh !important;
+    min-height: 60vh !important;
+  }
+  .login-form {
+    font-size: 1.2rem !important;
+    height: 100% !important;
+  }
+  .login-form input {
+    font-size: 1.2rem !important;
+    padding: 0.875rem 1.25rem !important;
+  }
+  .login-form label {
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+    display: block !important;
+    color: #2f5233 !important;
+  }
+  .login-form button {
+    font-size: 1.3rem !important;
+    padding: 0.875rem 1.75rem !important;
+  }
+  .login-form p {
+    font-size: 1.2rem !important;
+  }
+  .register-link {
+    font-size: 1.1rem !important;
+  }
+  .form-group {
+    margin-bottom: 1.5rem !important;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-    <label>Email:</label><br>
-    <input name="email" type="email" required><br><br>
-
-    <label>Password:</label><br>
-    <input name="password" type="password" required><br><br>
-
-    <input type="submit" value="Login">
-</form>
-
-{% if error %}
-    <p style="color:red;">{{ error }}</p>
-{% endif %}
+<div class="min-h-screen flex items-start justify-center pt-20">
+  <div class="flex flex-col md:flex-row w-full max-w-6xl login-container">
+    <!-- Left Side: Login Form -->
+    <div class="w-full md:w-1/2 p-6 bg-white shadow-lg rounded-l-lg flex items-center justify-center">
+      <div class="w-full max-w-md space-y-6 login-form">
+        <h2 class="text-2xl font-bold login-title text-center mb-6">Login To PlantPal</h2>
+        
+        {% if error %}
+          <p class="text-red-500 text-center mb-4">{{ error }}</p>
+        {% endif %}
+        
+        <form method="POST" action="/login" class="space-y-4">
+          <div class="form-group">
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" id="email" required 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+          </div>
+          <div class="form-group">
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password" id="password" required 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+          </div>
+          <button type="submit" class="btn btn-save w-full py-2 px-4 font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">Login</button>
+        </form>
+        
+        <p class="text-center text-sm text-gray-600 mt-4 register-link">
+          Don't have an account? 
+          <a href="/register" class="text-green-600 hover:underline">Register Here</a>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Right Side: Tropical Image -->
+    <div class="w-full md:w-1/2 h-64 md:h-auto bg-tropical rounded-r-lg"></div>
+  </div>
+</div>
 {% endblock %}

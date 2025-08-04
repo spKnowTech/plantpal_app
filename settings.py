@@ -12,8 +12,8 @@ class ConfigSettings(BaseSettings):
     db_username: str
     secret_key: str
     algorithm: str
-    open_api_key: str
-    access_token_expire_minutes: int
+    open_ai_key: str
+    access_token_expire_minutes: int = 720  # 12 hours default
 
     class Config:
         env_file = ".env"

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block css %}
+<link rel="stylesheet" href="/static/css/dashboard.css">
+{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+  <aside class="calendar" aria-label="Monthly calendar">
+    <h3>July 2025</h3>
+    <table aria-label="Calendar">
+      <thead>
+        <tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td><td></td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+        </tr>
+        <tr>
+          <td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td>
+        </tr>
+        <tr>
+          <td>13</td><td>14</td><td>15</td><td>16</td><td class="today">17</td><td>18</td><td>19</td>
+        </tr>
+        <tr>
+          <td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td>
+        </tr>
+        <tr>
+          <td>27</td><td>28</td><td>29</td><td>30</td><td>31</td><td></td><td></td>
+        </tr>
+      </tbody>
+    </table>
+  </aside>
+
+  <section class="plant-section" aria-label="Plant management">
+    <h3>Your Plants</h3>
+    
+    <!-- Add Plant Form -->
+    <form class="add-plant-form" method="post" action="/dashboard/add_plant">
+      <input type="text" name="plant_name" placeholder="Plant Name" required>
+      <input type="text" name="location" placeholder="Location" required>
+      <button type="submit">Add Plant</button>
+    </form>
+
+    <!-- Plant List -->
+    <div class="plant-list">
+      {% if plants %}
+        {% for plant in plants %}
+        <div class="plant-item">
+          <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=100&q=80" alt="{{ plant.name }}" />
+          <div class="plant-info">
+            <div class="plant-name">{{ plant.name }}</div>
+            <div class="plant-location">{{ plant.location }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-plants">
+          No plants added yet. Add your first plant above!
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

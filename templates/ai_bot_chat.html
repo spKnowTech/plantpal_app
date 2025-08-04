@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block css %}
+<link rel="stylesheet" href="/static/css/ai_bot_chat.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="left-panel">
+        <h2>🌱 Plant Assistant</h2>
+        <p>Your AI gardening companion</p>
+        
+        <!-- Plant Selection Info -->
+        {% if user_plants %}
+            <div class="plant-info">
+                <h4>Your Plants</h4>
+                {% for plant in user_plants %}
+                <p><strong>{{ plant.name }}</strong> - {{ plant.location }}</p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="welcome-message">
+                <p>👋 Welcome! Add some plants to your dashboard first, then come back to chat with me about them!</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="right-panel">
+        <!-- WhatsApp-style header -->
+        <div class="chat-header">
+            <div class="bot-avatar">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="bot-info">
+                <h3>PlantPal AI</h3>
+                <p>🌿 Your gardening assistant</p>
+            </div>
+        </div>
+        
+        <div class="chat-window" id="chat-window">
+            {% for message in chat_history %}
+            <div class="chat-row {{ 'user' if message.is_user else 'bot' }}">
+                {% if not message.is_user %}
+                <span class="chat-avatar">
+                    <i class="fas fa-seedling"></i>
+                </span>
+                {% endif %}
+                <div class="chat-bubble {{ 'user-bubble' if message.is_user else 'bot-bubble' }}">
+                    {{ message.text | safe }}
+                    <div class="message-time">
+                        {{ message.timestamp if message.timestamp else 'Now' }}
+                    </div>
+                </div>
+                {% if message.is_user %}
+                <span class="chat-avatar user-avatar">
+                    <i class="fas fa-user"></i>
+                </span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <form class="chat-input-area" method="post" action="/ai_chat" id="chat-form">
+            <textarea name="user_message" placeholder="Type a message..." autocomplete="off" required style="flex: 1 !important; padding: 0.8rem 1.2rem !important; border: 1px solid #e9ecef !important; border-radius: 25px !important; font-size: 1rem !important; background: #f8f9fa !important; min-height: 3rem !important; max-height: 120px !important; resize: none !important; line-height: 1.4 !important; font-family: inherit !important; overflow-y: auto !important; word-wrap: break-word !important; white-space: pre-wrap !important; box-sizing: border-box !important; margin: 0 !important; outline: none !important;"></textarea>
+            <button type="submit" id="send-button">
+                <i class="fas fa-paper-plane" id="send-icon"></i>
+                <div class="spinner" id="spinner"></div>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Scroll chat to bottom on load
+    const chatWindow = document.getElementById('chat-window');
+    if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
+    
+    // Get form elements
+    const chatForm = document.getElementById('chat-form');
+    const textarea = chatForm.querySelector('textarea[name="user_message"]');
+    const sendButton = document.getElementById('send-button');
+    const sendIcon = document.getElementById('send-icon');
+    const spinner = document.getElementById('spinner');
+    
+    // Function to show typing indicator
+    function showTypingIndicator() {
+        const typingRow = document.createElement('div');
+        typingRow.className = 'chat-row bot';
+        typingRow.id = 'typing-indicator';
+        
+        typingRow.innerHTML = `
+            <span class="chat-avatar">
+                <i class="fas fa-seedling"></i>
+            </span>
+            <div class="typing-indicator">
+                <span class="typing-text">PlantPal is thinking</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        `;
+        
+        chatWindow.appendChild(typingRow);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+    
+    // Function to hide typing indicator
+    function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+    
+    // Function to show loading state
+    function showLoadingState() {
+        sendButton.disabled = true;
+        sendIcon.style.display = 'none';
+        spinner.style.display = 'block';
+        textarea.disabled = true;
+    }
+    
+    // Function to hide loading state
+    function hideLoadingState() {
+        sendButton.disabled = false;
+        sendIcon.style.display = 'block';
+        spinner.style.display = 'none';
+        textarea.disabled = false;
+    }
+    
+    // Handle form submission
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const messageText = textarea.value.trim();
+        if (messageText === '') return;
+        
+        // Show loading state
+        showLoadingState();
+        
+        // Add user message to chat immediately
+        const userRow = document.createElement('div');
+        userRow.className = 'chat-row user';
+        userRow.innerHTML = `
+            <div class="chat-bubble user-bubble">
+                ${messageText}
+                <div class="message-time">Now</div>
+            </div>
+            <span class="chat-avatar user-avatar">
+                <i class="fas fa-user"></i>
+            </span>
+        `;
+        
+        chatWindow.appendChild(userRow);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Create a hidden input to preserve the message for form submission
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'user_message';
+        hiddenInput.value = messageText;
+        chatForm.appendChild(hiddenInput);
+        
+        // Clear the visible textarea
+        textarea.value = '';
+        
+        // Submit form after a short delay to show the typing indicator
+        setTimeout(() => {
+            chatForm.submit();
+        }, 500);
+    });
+    
+    // Auto-submit on Enter key (but allow Shift+Enter for new line)
+    textarea.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            chatForm.dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Auto-resize textarea as user types
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px'; // Max height of 120px
+    });
+    
+    // Focus textarea on page load
+    window.addEventListener('load', function() {
+        textarea.focus();
+    });
+    
+    // Check if page is reloading after form submission
+    if (performance.navigation.type === 1) {
+        // Page was reloaded, hide any existing typing indicator
+        hideTypingIndicator();
+    }
+</script>
+{% endblock %}
