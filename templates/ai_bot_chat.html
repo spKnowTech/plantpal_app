@@ -1,143 +1,14 @@
 {% extends 'base.html' %}
 {% block css %}
-<style>
-    .container {
-        display: flex;
-        height: 80vh;
-        gap: 2rem;
-        padding: 2rem;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    }
-    .left-panel {
-        flex: 1;
-        background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-    }
-    .right-panel {
-        flex: 2;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-    }
-    .chat-window {
-        flex: 1;
-        padding: 2rem;
-        overflow-y: auto;
-        background: #f8f9fa;
-        border-radius: 15px 15px 0 0;
-    }
-    .chat-input-area {
-        padding: 1.5rem;
-        background: white;
-        border-radius: 0 0 15px 15px;
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-    .chat-input-area input {
-        flex: 1;
-        padding: 1rem;
-        border: 2px solid #e9ecef;
-        border-radius: 25px;
-        font-size: 1rem;
-        transition: border-color 0.3s;
-    }
-    .chat-input-area input:focus {
-        outline: none;
-        border-color: #4a7c37;
-    }
-    .chat-input-area button {
-        padding: 1rem 2rem;
-        background: #4a7c37;
-        color: white;
-        border: none;
-        border-radius: 25px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    .chat-input-area button:hover {
-        background: #2f5233;
-    }
-    .chat-row {
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: 1.5rem;
-        gap: 1rem;
-    }
-    .chat-row.user {
-        flex-direction: row-reverse;
-    }
-    .chat-bubble {
-        max-width: 70%;
-        padding: 1rem 1.5rem;
-        border-radius: 20px;
-        line-height: 1.5;
-    }
-    .user-bubble {
-        background: #4a7c37;
-        color: white;
-        border-bottom-right-radius: 5px;
-    }
-    .bot-bubble {
-        background: white;
-        color: #333;
-        border: 1px solid #e9ecef;
-        border-bottom-left-radius: 5px;
-    }
-    .chat-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        flex-shrink: 0;
-    }
-    .chat-avatar i {
-        color: #4a7c37;
-    }
-    .welcome-message {
-        text-align: center;
-        color: #666;
-        font-style: italic;
-        margin-bottom: 2rem;
-    }
-    .plant-info {
-        background: #e8f5e8;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-left: 4px solid #4a7c37;
-    }
-    .plant-info h4 {
-        color: #2f5233;
-        margin: 0 0 0.5rem 0;
-    }
-    .plant-info p {
-        margin: 0.25rem 0;
-        color: #555;
-    }
-    @media (max-width: 600px) {
-        .container { flex-direction: column; }
-        .left-panel, .right-panel { padding: 1rem; }
-        .chat-window { padding: 1rem 0.5rem; }
-    }
-</style>
+<link rel="stylesheet" href="/static/css/ai_bot_chat.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 {% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="left-panel">
         <h2>🌱 Plant Assistant</h2>
-        <p>Ask me anything about your plants and gardening!</p>
+        <p>Your AI gardening companion</p>
         
         <!-- Plant Selection Info -->
         {% if user_plants %}
@@ -155,61 +26,178 @@
     </div>
     
     <div class="right-panel">
+        <!-- WhatsApp-style header -->
+        <div class="chat-header">
+            <div class="bot-avatar">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="bot-info">
+                <h3>PlantPal AI</h3>
+                <p>🌿 Your gardening assistant</p>
+            </div>
+        </div>
+        
         <div class="chat-window" id="chat-window">
             {% for message in chat_history %}
             <div class="chat-row {{ 'user' if message.is_user else 'bot' }}">
                 {% if not message.is_user %}
-                <span class="chat-avatar"><i class="fas fa-robot"></i></span>
+                <span class="chat-avatar">
+                    <i class="fas fa-seedling"></i>
+                </span>
                 {% endif %}
                 <div class="chat-bubble {{ 'user-bubble' if message.is_user else 'bot-bubble' }}">
                     {{ message.text | safe }}
+                    <div class="message-time">
+                        {{ message.timestamp if message.timestamp else 'Now' }}
+                    </div>
                 </div>
                 {% if message.is_user %}
-                <span class="chat-avatar"><i class="fas fa-user-circle"></i></span>
+                <span class="chat-avatar user-avatar">
+                    <i class="fas fa-user"></i>
+                </span>
                 {% endif %}
             </div>
             {% endfor %}
         </div>
-        <form class="chat-input-area" method="post" action="/ai_chat">
-            <input type="text" name="user_message" placeholder="Type your message..." autocomplete="off" required>
-            <button type="submit">Send</button>
+        
+        <form class="chat-input-area" method="post" action="/ai_chat" id="chat-form">
+            <textarea name="user_message" placeholder="Type a message..." autocomplete="off" required style="flex: 1 !important; padding: 0.8rem 1.2rem !important; border: 1px solid #e9ecef !important; border-radius: 25px !important; font-size: 1rem !important; background: #f8f9fa !important; min-height: 3rem !important; max-height: 120px !important; resize: none !important; line-height: 1.4 !important; font-family: inherit !important; overflow-y: auto !important; word-wrap: break-word !important; white-space: pre-wrap !important; box-sizing: border-box !important; margin: 0 !important; outline: none !important;"></textarea>
+            <button type="submit" id="send-button">
+                <i class="fas fa-paper-plane" id="send-icon"></i>
+                <div class="spinner" id="spinner"></div>
+            </button>
         </form>
     </div>
 </div>
+
 <script>
     // Scroll chat to bottom on load
     const chatWindow = document.getElementById('chat-window');
     if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
-</script>
-{% endblock %}
-{% block js %}
-<script>
-    const chatForm = document.getElementById('chatForm');
-    const chatMessages = document.getElementById('chatMessages');
-
+    
+    // Get form elements
+    const chatForm = document.getElementById('chat-form');
+    const textarea = chatForm.querySelector('textarea[name="user_message"]');
+    const sendButton = document.getElementById('send-button');
+    const sendIcon = document.getElementById('send-icon');
+    const spinner = document.getElementById('spinner');
+    
+    // Function to show typing indicator
+    function showTypingIndicator() {
+        const typingRow = document.createElement('div');
+        typingRow.className = 'chat-row bot';
+        typingRow.id = 'typing-indicator';
+        
+        typingRow.innerHTML = `
+            <span class="chat-avatar">
+                <i class="fas fa-seedling"></i>
+            </span>
+            <div class="typing-indicator">
+                <span class="typing-text">PlantPal is thinking</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        `;
+        
+        chatWindow.appendChild(typingRow);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+    
+    // Function to hide typing indicator
+    function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+    
+    // Function to show loading state
+    function showLoadingState() {
+        sendButton.disabled = true;
+        sendIcon.style.display = 'none';
+        spinner.style.display = 'block';
+        textarea.disabled = true;
+    }
+    
+    // Function to hide loading state
+    function hideLoadingState() {
+        sendButton.disabled = false;
+        sendIcon.style.display = 'block';
+        spinner.style.display = 'none';
+        textarea.disabled = false;
+    }
+    
+    // Handle form submission
     chatForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const input = document.getElementById('userInput');
-      const messageText = input.value.trim();
-      if (messageText === '') return;
-
-      // Add user message
-      const userMsg = document.createElement('div');
-      userMsg.classList.add('message', 'user');
-      userMsg.textContent = messageText;
-      chatMessages.appendChild(userMsg);
-
-      // Simulate bot response after delay
-      setTimeout(() => {
-        const botMsg = document.createElement('div');
-        botMsg.classList.add('message', 'bot');
-        botMsg.innerHTML = '<i class="fas fa-leaf"></i><div>Thanks for your message! I will get back to you soon.</div>';
-        chatMessages.appendChild(botMsg);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }, 1000);
-
-      input.value = '';
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+        e.preventDefault();
+        
+        const messageText = textarea.value.trim();
+        if (messageText === '') return;
+        
+        // Show loading state
+        showLoadingState();
+        
+        // Add user message to chat immediately
+        const userRow = document.createElement('div');
+        userRow.className = 'chat-row user';
+        userRow.innerHTML = `
+            <div class="chat-bubble user-bubble">
+                ${messageText}
+                <div class="message-time">Now</div>
+            </div>
+            <span class="chat-avatar user-avatar">
+                <i class="fas fa-user"></i>
+            </span>
+        `;
+        
+        chatWindow.appendChild(userRow);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Create a hidden input to preserve the message for form submission
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'user_message';
+        hiddenInput.value = messageText;
+        chatForm.appendChild(hiddenInput);
+        
+        // Clear the visible textarea
+        textarea.value = '';
+        
+        // Submit form after a short delay to show the typing indicator
+        setTimeout(() => {
+            chatForm.submit();
+        }, 500);
     });
+    
+    // Auto-submit on Enter key (but allow Shift+Enter for new line)
+    textarea.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            chatForm.dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Auto-resize textarea as user types
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px'; // Max height of 120px
+    });
+    
+    // Focus textarea on page load
+    window.addEventListener('load', function() {
+        textarea.focus();
+    });
+    
+    // Check if page is reloading after form submission
+    if (performance.navigation.type === 1) {
+        // Page was reloaded, hide any existing typing indicator
+        hideTypingIndicator();
+    }
 </script>
 {% endblock %}

@@ -64,13 +64,3 @@ async def delete_plant(
     if not deleted:
         raise HTTPException(status_code=404, detail="Plant not found")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-@router.get("/dashboard")
-async def dashboard(
-    request: Request,
-    db: Session = Depends(get_db),
-    user: ResponseUser = Depends(get_current_user)
-) -> Response:
-    """Render the plant dashboard page."""
-    plants = await plant_service.get_user_plants_service(db, user.id)
-    return templates.TemplateResponse("plant_list.html", {"request": request, "plants": plants})

@@ -1,99 +1,42 @@
 {% extends 'base.html' %}
 {% block css %}
-<style>
-  .hero-section {
-    background-color: #daf2d4;
-    border-radius: 15px;
-    padding: 3rem 2rem;
-    margin: 2.5rem auto 0 auto;
-    max-width: 1100px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 8px 24px rgba(56, 142, 60, 0.08);
-    gap: 2.5rem;
-    flex-wrap: nowrap;
-  }
-  .hero-text, .hero-image {
-    flex: 1 1 50%;
-    max-width: 50%;
-  }
-  .hero-text h1 {
-    font-family: 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
-    font-weight: 700;
-    font-size: 3.5rem;
-    color: #2f5233;
-  }
-  .hero-text p {
-    font-size: 1.25rem;
-    color: #4a7c37;
-  }
-  .btn-plantpal {
-    background-color: #4a7c37;
-    color: white;
-    font-weight: 600;
-    padding: 0.7rem 1.8rem;
-    border-radius: 30px;
-  }
-  .btn-plantpal:hover {
-    background-color: #37602b;
-  }
-  .hero-image {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .hero-image img {
-    width: 100%;
-    max-width: 350px;
-    height: auto;
-    border-radius: 15px;
-    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-    object-fit: cover;
-    display: block;
-  }
-  @media (max-width: 900px) {
-    .hero-section {
-      flex-direction: column;
-      flex-wrap: wrap;
-      text-align: center;
-      padding: 2.5rem 1rem;
-      gap: 1.5rem;
-    }
-    .hero-text, .hero-image {
-      max-width: 100%;
-      flex: 1 1 100%;
-    }
-    .hero-image img {
-      max-width: 250px;
-    }
-    .hero-text h1 {
-      font-size: 2.1rem;
-    }
-    .hero-text p {
-      font-size: 1rem;
-    }
-  }
-  @media (max-width: 600px) {
-    .hero-section {
-      padding: 1.2rem 0.3rem;
-    }
-    .hero-image img {
-      max-width: 180px;
-    }
-  }
-</style>
-{% endblock %}
+<link rel="stylesheet" href="/static/css/home_page.css">
+{% endblock css %}
 {% block content %}
 <div class="hero-section">
   <div class="hero-text">
     <h1>Welcome to PlantPal</h1>
-    <p>Your personalized AI assistant for plant care and gardening tips.</p>
-    <a href="{% if not user %}/login{% else %}/dashboard{% endif %}" class="btn btn-plantpal mt-3">Get Started</a>
+    <div class="hero-subtitle-container">
+      <p class="hero-subtitle">
+        Enhance your gardening experience with PlantPal, your intelligent AI companion. Combining advanced AI with expert horticultural knowledge, PlantPal offers personalized care tips, real-time health monitoring, custom watering schedules, disease detection, and growth tracking. Whether you're a beginner or a pro, PlantPal helps your plants thrive in any environment.
+      </p>
+    </div>
+    
+    <div class="hero-features">
+      <div class="feature-item">
+        <i class="fas fa-leaf"></i>
+        <span>Smart Plant Identification</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-robot"></i>
+        <span>AI-Powered Care Tips</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Watering Schedules</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-chart-line"></i>
+        <span>Growth Tracking</span>
+      </div>
+    </div>
+    
+    <div class="hero-cta">
+      <a href="{% if not user %}/login{% else %}/dashboard{% endif %}" class="btn btn-plantpal">Get Started</a>
+    </div>
   </div>
   <div class="hero-image">
-    <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80" alt="Plant Image" />
+    <img src="/static/images/plantpal_home.jpg" alt="PlantPal Logo" />
   </div>
 </div>
 {% endblock %}

@@ -12,8 +12,7 @@ app = FastAPI(
 )
 
 # Mount static files (if you have a static directory)
-if os.path.isdir("static"):
-    app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Set up templates directory
 templates = Jinja2Templates(directory="templates")
@@ -21,7 +20,7 @@ templates = Jinja2Templates(directory="templates")
 # Include routers
 app.include_router(user.router)
 app.include_router(plant.router)
-app.include_router(ai_chat.router)
+app.include_router(ai_bot.router)
 app.include_router(dashboard.router)
 
 @app.get("/", response_class=HTMLResponse)

@@ -4,7 +4,8 @@ from fastapi.responses import RedirectResponse
 from services.user_service import get_current_user
 from database import get_db
 from sqlalchemy.orm import Session
-from repositories.plant_repo import get_user_plants, add_plant_for_user
+from repositories.plant_repo import get_user_plants, create_plant
+from schemas.plant import PlantCreate
 from schemas.user import ResponseUser
 
 # If you have a global templates instance, import it instead
@@ -18,6 +19,7 @@ async def dashboard(
     user: ResponseUser = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Render the main dashboard page with user's plants and messages."""
     if not user:
         response = RedirectResponse("/login", status_code=303)
         response.set_cookie("message", "Please log in to access this page.", max_age=5, path="/")
@@ -50,6 +52,7 @@ async def add_plant(
     user: ResponseUser = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Handle adding a new plant to the user's collection."""
     if not user:
         response = RedirectResponse("/login", status_code=303)
         response.set_cookie("message", "Please log in to access this page.", max_age=5, path="/")
@@ -57,8 +60,14 @@ async def add_plant(
         return response
 
     try:
-        # Add the plant
-        add_plant_for_user(db, user.id, plant_name, location)
+        # Create plant data
+        plant_data = PlantCreate(
+            name=plant_name,
+            location=location
+        )
+        
+        # Add the plant using the updated function
+        create_plant(db, plant_data, user.id)
         
         # Redirect back to dashboard with success message
         response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)

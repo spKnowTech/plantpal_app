@@ -18,3 +18,4 @@ class User(Base):
     plant = relationship("Plant", back_populates="user", cascade="all, delete")
     ai_logs = relationship("AILog", back_populates="user", cascade="all, delete")
     ai_responses = relationship("AIResponse", back_populates="user", cascade="all, delete")
+    conversation_sessions = relationship("ConversationSession", back_populates="user", cascade="all, delete")

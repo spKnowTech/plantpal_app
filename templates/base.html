@@ -4,141 +4,16 @@
     <title>{% block title %}PlantPal{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        :root {
-            --primary-green: #3bb77e;
-            --primary-teal: #43c6ac;
-            --accent-green: #eafaf1;
-            --accent-teal: #e0f7fa;
-            --navbar-bg: #fff;
-            --navbar-shadow: 0 4px 24px rgba(67, 198, 172, 0.08);
-            --tab-active-bg: #eafaf1;
-            --tab-hover-bg: #e0f7fa;
-            --tab-color: #3bb77e;
-            --tab-active-color: #fff;
-            --btn-bg: linear-gradient(90deg, #43c6ac 0%, #3bb77e 100%);
-            --btn-hover-bg: linear-gradient(90deg, #3bb77e 0%, #43c6ac 100%);
-            --btn-color: #fff;
-            --card-bg: #fff;
-            --card-shadow: 0 8px 24px rgba(67, 198, 172, 0.10);
-        }
-        html, body {
-            height: 100%;
-        }
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #eafaf1 0%, #e0f7fa 100%);
-            font-family: 'Poppins', Arial, sans-serif;
-            color: #2f5233;
-            margin: 0;
-        }
-        .navbar {
-            background: var(--navbar-bg);
-            border-radius: 1.5rem;
-            box-shadow: var(--navbar-shadow);
-            margin: 1.5rem auto 2.5rem auto;
-            max-width: 1200px;
-            padding: 0.5rem 2rem;
-            display: flex;
-            align-items: center;
-        }
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 2rem;
-            color: var(--primary-green) !important;
-            letter-spacing: 1px;
-        }
-        .navbar-nav {
-            display: flex;
-            gap: 1.2rem;
-            margin-left: auto;
-            list-style: none;
-            padding: 0;
-            margin: 0 0 0 auto;
-        }
-        .nav-link {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--tab-color) !important;
-            border-radius: 1rem;
-            padding: 0.5rem 1.2rem;
-            transition: background 0.2s, color 0.2s;
-            background: transparent;
-        }
-        .nav-link.active, .nav-link[aria-current="page"] {
-            background: var(--tab-active-bg);
-            color: var(--primary-green) !important;
-            box-shadow: 0 2px 8px rgba(67, 198, 172, 0.08);
-        }
-        .nav-link:hover, .nav-link:focus {
-            background: var(--tab-hover-bg);
-            color: var(--primary-teal) !important;
-        }
-        .alert {
-            margin-bottom: 0;
-            border-radius: 1rem;
-            max-width: 600px;
-            margin: 1rem auto 0 auto;
-            box-shadow: 0 2px 8px rgba(67, 198, 172, 0.10);
-            font-size: 1.05rem;
-        }
-        .btn, button, input[type="submit"] {
-            background: var(--btn-bg);
-            color: var(--btn-color) !important;
-            border: none;
-            border-radius: 2rem;
-            font-weight: 600;
-            font-size: 1.1rem;
-            padding: 0.6rem 2rem;
-            box-shadow: 0 2px 8px rgba(67, 198, 172, 0.10);
-            transition: background 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .btn:hover, button:hover, input[type="submit"]:hover {
-            background: var(--btn-hover-bg);
-            box-shadow: 0 4px 16px rgba(67, 198, 172, 0.15);
-        }
-        .card, .main-card {
-            background: var(--card-bg);
-            border-radius: 1.5rem;
-            box-shadow: var(--card-shadow);
-            padding: 2.5rem 2rem;
-            margin: 2rem auto;
-            max-width: 1100px;
-        }
-        h1, h2, h3, h4, h5 {
-            font-family: 'Poppins', Arial, sans-serif;
-            font-weight: 700;
-            color: var(--primary-green);
-        }
-        a {
-            color: var(--primary-teal);
-            text-decoration: none;
-        }
-        a:hover {
-            color: var(--primary-green);
-        }
-        @media (max-width: 991px) {
-            .navbar {
-                flex-direction: column;
-                padding: 1rem 1rem;
-            }
-            .navbar-nav {
-                flex-direction: column;
-                gap: 0.5rem;
-                width: 100%;
-                margin-left: 0;
-            }
-            .main-card, .card {
-                padding: 1.2rem 0.7rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/base.css">
     {% block css %}{% endblock %}
 </head>
 <body>
 <nav class="navbar navbar-expand-lg">
-    <div class="navbar-brand"><a href="/" style="color:inherit;text-decoration:none;">PlantPal</a></div>
+    <div class="navbar-brand">
+        <a href="/" style="color:inherit;text-decoration:none;">
+            <img src="/static/images/logo.jpg" alt="PlantPal Logo" class="navbar-logo">
+        </a>
+    </div>
     <ul class="navbar-nav">
         <li class="nav-item">
             <a class="nav-link{% if request.url.path == '/' %} active{% endif %}" href="/">Home</a>

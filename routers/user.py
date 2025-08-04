@@ -1,12 +1,13 @@
 from sqlalchemy.orm import Session
-from fastapi import Depends, APIRouter, Request
+from fastapi import Depends, APIRouter, Request, status
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from schemas.user import CreateUser
 from forms.user_forms import UserCreateForm, UserLoginForm
-from services.user_service import register_user, authenticate_user
-from repositories.ai_bot_repo import clear_ai_responses
+from services.user_service import register_user, authenticate_user, get_current_user
 from database import get_db
+from services.ai_bot_service import clear_user_session
+
 
 router = APIRouter(tags=['Users'])
 templates = Jinja2Templates(directory="templates")
@@ -84,18 +85,13 @@ async def login(
 # log out
 @router.get("/logout")
 async def logout(request: Request, db: Session = Depends(get_db)):
-    """Handle user logout and clear AI responses."""
-    user_id = request.cookies.get("user_id")
+    """Handle user logout."""
+    # Clear user session
+    user = get_current_user(request, db)
+    if user:
+        clear_user_session(db, user.id)
     
-    # Clear AI responses for the user if they were logged in
-    if user_id:
-        try:
-            clear_ai_responses(db, int(user_id))
-        except Exception as e:
-            print(f"Error clearing AI responses: {str(e)}")
-    
-    response = RedirectResponse("/", status_code=303)
-    response.delete_cookie("user_id", path="/")
-    response.set_cookie("message", "You have been logged out successfully.", max_age=5, path="/")
-    response.set_cookie("message_type", "success", max_age=5, path="/")
+    # Clear session cookie
+    response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    response.delete_cookie("session_token")
     return response
