@@ -1,8 +1,0 @@
-{
-    "editor.fontSize": 15,
-    "terminal.integrated.fontSize": 15,
-    "debug.console.fontSize": 14,
-    "editor.minimap.sectionHeaderFontSize": 10,
-    "cursor.composer.shouldChimeAfterChatFinishes": true,
-    "workbench.iconTheme": "simple-icons"
-}
