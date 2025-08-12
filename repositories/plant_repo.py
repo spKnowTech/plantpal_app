@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from models.plant import Plant, PlantCareTask
 from schemas.plant import PlantCreate, PlantUpdate, PlantCareTaskCreate, PlantCareTaskUpdate
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from typing import List, Optional
 
 
@@ -71,13 +71,14 @@ def get_plant_care_tasks(db: Session, plant_id: int, user_id: int) -> List[Plant
     ).all()
 
 
-def update_care_task(db: Session, task_id: int, task_update: PlantCareTaskUpdate, user_id: int) -> Optional[PlantCareTask]:
+def update_care_task(db: Session, task_id: int, task_update: PlantCareTaskUpdate, user_id: int) -> Optional[
+    PlantCareTask]:
     """Update a care task."""
     db_task = db.query(PlantCareTask).join(Plant).filter(
         PlantCareTask.id == task_id,
         Plant.user_id == user_id
     ).first()
-    
+
     if db_task:
         update_data = task_update.dict(exclude_unset=True)
         for field, value in update_data.items():
@@ -93,7 +94,7 @@ def delete_care_task(db: Session, task_id: int, user_id: int) -> bool:
         PlantCareTask.id == task_id,
         Plant.user_id == user_id
     ).first()
-    
+
     if db_task:
         db.delete(db_task)
         db.commit()
@@ -104,7 +105,7 @@ def delete_care_task(db: Session, task_id: int, user_id: int) -> bool:
 def create_default_care_tasks(db: Session, plant_id: int, plant: Plant) -> List[PlantCareTask]:
     """Create default care tasks for a plant based on its species and characteristics."""
     care_tasks = []
-    
+
     # Default watering task
     watering_interval = plant.watering_interval_days or 7  # Default to weekly
     watering_task = PlantCareTask(
@@ -117,7 +118,7 @@ def create_default_care_tasks(db: Session, plant_id: int, plant: Plant) -> List[
         is_active=True
     )
     care_tasks.append(watering_task)
-    
+
     # Default fertilizing task (monthly)
     fertilizing_task = PlantCareTask(
         plant_id=plant_id,
@@ -129,7 +130,7 @@ def create_default_care_tasks(db: Session, plant_id: int, plant: Plant) -> List[
         is_active=True
     )
     care_tasks.append(fertilizing_task)
-    
+
     # Health check task (weekly)
     health_task = PlantCareTask(
         plant_id=plant_id,
@@ -141,15 +142,15 @@ def create_default_care_tasks(db: Session, plant_id: int, plant: Plant) -> List[
         is_active=True
     )
     care_tasks.append(health_task)
-    
+
     # Add all tasks to database
     for task in care_tasks:
         db.add(task)
-    
+
     db.commit()
-    
+
     # Refresh all tasks to get their IDs
     for task in care_tasks:
         db.refresh(task)
-    
+
     return care_tasks

@@ -2,7 +2,8 @@ import re
 
 def markdown_to_html(text: str) -> str:
     """
-    Convert basic markdown to HTML for display in chat bubbles.
+    Convert basic markdown to HTML for display in chat bubbles. It handles text formatting, 
+    bullet points, and numbered lists.
     """
     if not text:
         return text
@@ -19,7 +20,7 @@ def markdown_to_html(text: str) -> str:
     in_ul = False
     in_ol = False
     
-    for i, line in enumerate(lines):
+    for line in lines:
         stripped_line = line.strip()
         
         # Check for bullet points

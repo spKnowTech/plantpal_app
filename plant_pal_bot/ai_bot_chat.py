@@ -1,14 +1,16 @@
 # Orchestrates the user input, command parsing, prompt construction, OpenAI call, and logging of AI responses.
 
 from plant_pal_bot.ai_bot_client import ask_gpt4o
-from repositories.ai_bot_repo import get_complete_conversation_history
+from repositories.ai_bot_repo import (
+    get_complete_conversation_history, get_user_input_history
+)
 from repositories.plant_repo import find_plant_by_name, update_plant, create_default_care_tasks
 from models.ai_bot import AILog
-from schemas.ai_bot import AIChatRequest
 from schemas.plant import PlantUpdate
 from sqlalchemy.orm import Session
 import re
-from datetime import date, timedelta
+from models.plant import Plant
+import json
 
 PLANT_KEYWORDS = [
     "plant", "watering", "fertilizer", "soil", "leaves", "sunlight", "photosynthesis",
@@ -44,9 +46,8 @@ RESTRICTED_TEXT = (
 )
 
 def is_plant_related(text: str) -> bool:
-    """Enhanced plant-related detection with more comprehensive keyword matching."""
+    """Enhanced plant-related detection with more comprehensive keywords matching."""
     text_lower = text.lower()
-    
     # Check for plant-related keywords
     if any(keyword in text_lower for keyword in PLANT_KEYWORDS):
         return True
@@ -61,16 +62,13 @@ def is_plant_related(text: str) -> bool:
         "sunlight", "shade", "temperature", "humidity",
         "soil", "pot", "container", "planter"
     ]
-    
     if any(phrase in text_lower for phrase in plant_phrases):
         return True
-    
     # Check for question words that might be about plants
     question_words = ["what", "when", "where", "why", "how", "which"]
     if any(word in text_lower for word in question_words):
         # If it's a question, be more lenient but still check for plant context
         return any(keyword in text_lower for keyword in PLANT_KEYWORDS[:20])  # Use core keywords
-    
     return False
 
 def extract_plant_info_from_text(text: str) -> dict:
@@ -89,22 +87,19 @@ def extract_plant_info_from_text(text: str) -> dict:
 
     Return only valid JSON or "null" if no plant information is found.
     """
-
     try:
         response = ask_gpt4o(
             prompt=prompt,
-            system_prompt="You are a plant information extractor. Extract only plant-related information and return it as JSON. If no plant information is found, return 'null'."
-        )
-        
+            system_prompt=(f"You are a plant information extractor. Extract only plant-related information "
+                           f"and return it as JSON. If no plant information is found, return 'null'."
+        ))
         # Try to parse JSON response
-        import json
         try:
             plant_info = json.loads(response.strip())
             if plant_info and plant_info != "null":
                 return plant_info
         except json.JSONDecodeError:
             pass
-        
         return {}
     except Exception as e:
         print(f"Error extracting plant info: {str(e)}")
@@ -113,7 +108,6 @@ def extract_plant_info_from_text(text: str) -> dict:
 def should_create_care_tasks(text: str) -> bool:
     """Check if user wants care tasks created for their plant."""
     text_lower = text.lower()
-    
     care_task_indicators = [
         "care task", "care schedule", "reminder", "schedule", "routine",
         "when to water", "when to fertilize", "watering schedule", "fertilizing schedule",
@@ -121,7 +115,6 @@ def should_create_care_tasks(text: str) -> bool:
         "yes", "sure", "okay", "ok", "please", "that would be great", "that sounds good",
         "create", "set up", "establish", "start", "begin"
     ]
-    
     return any(indicator in text_lower for indicator in care_task_indicators)
 
 def generate_history_summary(user_history: list[str]) -> str:
@@ -131,25 +124,27 @@ def generate_history_summary(user_history: list[str]) -> str:
     
     # Create a prompt for the AI to generate a natural history summary
     history_text = "\n".join([f"- {text}" for text in user_history])
-    
     prompt = f"""Based on the following user conversation history, create a natural, friendly paragraph that summarizes what the user has been asking about. Make it conversational and engaging, not a bullet point list.
 
 User's previous questions:
 {history_text}
 
 Please create a 2-3 sentence paragraph that naturally flows and summarizes their plant care interests and concerns. Include specific topics they've asked about and any patterns in their questions."""
-
     try:
         summary = ask_gpt4o(
             prompt=prompt,
-            system_prompt="You are PlantPal, a friendly plant care assistant. Create natural, conversational summaries of user's plant care history. Keep it warm and engaging. Focus on their specific plant care interests and any recurring themes in their questions."
+            system_prompt=(f"You are PlantPal, a friendly plant care assistant. Create natural, conversational "
+                           f"summaries of user's plant care history. Keep it warm and engaging. Focus on their "
+                           f"specific plant care interests and any recurring themes in their questions.")
         )
         return summary
     except Exception as e:
         print(f"Error generating history summary: {str(e)}")
         # Fallback to a simple summary
         if len(user_history) >= 3:
-            return f"🌱 Based on our previous conversations, I remember you've been asking about plant care topics including {', '.join(user_history[-3:])}. You seem very interested in taking good care of your plants! 🌿"
+            return (f"🌱 Based on our previous conversations, I remember you've been asking about plant care "
+                    f"topics including {', '.join(user_history[-3:])}. You seem very interested in taking "
+                    f"good care of your plants! 🌿")
         else:
             return f"🌱 We've had some great conversations about {', '.join(user_history)}. How can I help you today? 🌿"
 
@@ -173,7 +168,7 @@ def fix_numbered_lists(text: str) -> str:
             list_counter += 1
             in_list = True
         else:
-            # If we were in a list and now we're not, reset counter
+            # If we were in a list, and now we're not, reset counter
             if in_list and stripped_line and not stripped_line.startswith('•') and not stripped_line.startswith('-'):
                 list_counter = 1
                 in_list = False
@@ -187,7 +182,6 @@ def check_similar_past_questions(db: Session, user_id: int, current_question: st
     try:
         # Get complete conversation history
         complete_history = get_complete_conversation_history(db, user_id)
-        
         if not complete_history:
             return ""
         
@@ -208,7 +202,6 @@ def check_similar_past_questions(db: Session, user_id: int, current_question: st
         - If similar: "PAST_REFERENCE: [brief mention of past conversation]"
         - If new: "NEW_TOPIC"
         """
-        
         try:
             response = ask_gpt4o(
                 prompt=prompt,
@@ -235,20 +228,14 @@ def answer_user_question(db: Session, user_id: int, user_message: str, plant_id:
         
         return MockAILog(ai_response)
 
-    # Get complete conversation history for context
-    complete_history = get_complete_conversation_history(db, user_id)
-    
-    # Check for similar past questions
-    past_reference = check_similar_past_questions(db, user_id, user_message)
-    
+    complete_history = get_complete_conversation_history(db, user_id) # Get complete chat history for context
+    past_reference = check_similar_past_questions(db, user_id, user_message) # Check for similar past questions
     # Extract plant information from user message
     plant_info = extract_plant_info_from_text(user_message)
-    
     # If plant information is found, try to find or update the plant
     if plant_info and plant_info.get('name'):
         plant_name = plant_info['name']
         existing_plant = find_plant_by_name(db, plant_name, user_id)
-        
         if existing_plant:
             # Update existing plant with new information
             update_data = {}
@@ -324,7 +311,7 @@ Current user message: {user_message}"""
     # Fix any numbered lists in the response to ensure proper sequential numbering
     ai_response = fix_numbered_lists(ai_response)
     
-    # If user wants care tasks and we have a plant, create them
+    # If user wants care tasks, we have a plant, create them
     if wants_care_tasks and plant_id:
         try:
             plant = db.query(Plant).filter(Plant.id == plant_id, Plant.user_id == user_id).first()
@@ -341,36 +328,6 @@ Current user message: {user_message}"""
             self.ai_response = response
     
     return MockAILog(ai_response)
-
-def extract_and_update_plant_info(db: Session, user_id: int, plant_id: int, user_message: str, ai_response: str):
-    """Extract plant details from conversation and update the plant in DB if new info is found."""
-    # Simple regex/keyword extraction (expand as needed)
-    species = None
-    nickname = None
-    
-    # Example: "My plant's species is Ficus lyrata and I call it Figgy."
-    species_match = re.search(r"species is ([\w\s]+)[\.,]?", user_message, re.IGNORECASE)
-    if not species_match:
-        species_match = re.search(r"species is ([\w\s]+)[\.,]?", ai_response, re.IGNORECASE)
-    if species_match:
-        species = species_match.group(1).strip()
-    
-    nickname_match = re.search(r"call (it|him|her|my plant) ([\w\s]+)[\.,]?", user_message, re.IGNORECASE)
-    if not nickname_match:
-        nickname_match = re.search(r"nickname is ([\w\s]+)[\.,]?", user_message, re.IGNORECASE)
-    if not nickname_match:
-        nickname_match = re.search(r"nickname is ([\w\s]+)[\.,]?", ai_response, re.IGNORECASE)
-    if nickname_match:
-        nickname = nickname_match.group(2).strip() if nickname_match.lastindex == 2 else nickname_match.group(1).strip()
-    
-    # Only update if new info is found
-    if species or nickname:
-        update_data = {}
-        if species:
-            update_data["species"] = species
-        if nickname:
-            update_data["nickname"] = nickname
-        update_plant(db, plant_id, PlantUpdate(**update_data), user_id)
 
 def is_summary_request(user_message: str) -> bool:
     """Check if user is asking for a summary of previous chat history."""
@@ -390,9 +347,7 @@ def generate_chat_summary(db, user_id: int) -> str:
     """Generate a summary of the user's previous chat history."""
     try:
         # Use the detailed conversation summary function
-        from plant_pal_bot.ai_bot_chat import generate_detailed_conversation_summary
         summary = generate_detailed_conversation_summary(db, user_id)
-        
         return summary
     except Exception as e:
         print(f"Error generating chat summary: {str(e)}")
@@ -403,7 +358,6 @@ def generate_detailed_conversation_summary(db: Session, user_id: int) -> str:
     try:
         # Get complete conversation history
         complete_history = get_complete_conversation_history(db, user_id)
-        
         if not complete_history:
             return "🌿 We haven't had any previous conversations yet! This is our first chat. Feel free to ask me anything about your plants and gardening! 🌿"
         
@@ -435,44 +389,3 @@ Make it conversational and engaging, as if I'm reminiscing about our conversatio
     except Exception as e:
         print(f"Error in generate_detailed_conversation_summary: {str(e)}")
         return "🌱 I remember we've had some great conversations about your plants! How can I help you today? 🌿"
-
-def handle_ai_chat(db, user_id, user_message, plant_id=None):
-    """Handle AI chat interaction, including message saving and response generation."""
-    try:
-        # Check if user is asking for a summary
-        if is_summary_request(user_message):
-            # Generate summary response
-            summary_response = generate_chat_summary(db, user_id)
-            
-            # Save user message
-            save_user_message_service(db, user_id, user_message)
-            
-            # Save bot summary response
-            save_bot_message_service(db, user_id, summary_response)
-            
-            return summary_response
-        
-        # Save user message first
-        save_user_message_service(db, user_id, user_message)
-        
-        # If no plant_id provided, try to match user input with plants
-        if not plant_id:
-            matched_plant = match_user_input_with_plants(db, user_id, user_message)
-            if matched_plant:
-                plant_id = matched_plant.id
-        
-        # Generate bot response (plant/gardening only)
-        ai_log = answer_user_question(db, user_id, user_message, plant_id)
-        
-        # Save bot message
-        save_bot_message_service(db, user_id, ai_log.ai_response)
-        
-        # Optionally update plant info from chat
-        if plant_id:
-            extract_and_update_plant_info(db, user_id, plant_id, user_message, ai_log.ai_response)
-        
-        return ai_log.ai_response
-    except Exception as e:
-        print(f"Error in handle_ai_chat: {str(e)}")
-        # Return a fallback response
-        return "I'm sorry, I'm having trouble processing your request right now. Please try again in a moment."

@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request
 from routers import user, plant, ai_bot, dashboard
 from fastapi.staticfiles import StaticFiles
-import os
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
