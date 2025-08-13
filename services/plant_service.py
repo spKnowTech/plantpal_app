@@ -53,9 +53,3 @@ def delete_care_task_service(db: Session, task_id: int, user_id: int):
     return delete_care_task(db, task_id, user_id)
 
 
-def create_default_care_tasks_service(db: Session, plant_id: int, user_id: int):
-    """Create default care tasks for a plant."""
-    plant = get_plant(db, plant_id, user_id)
-    if plant:
-        return create_default_care_tasks(db, plant_id, plant)
-    return []

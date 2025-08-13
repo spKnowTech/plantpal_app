@@ -9,7 +9,7 @@ from database import DATABASE_URL, Base
 import models.user
 import models.plant
 import models.ai_bot
-
+import models.care_task
 
 
 # this is the Alembic Config object, which provides

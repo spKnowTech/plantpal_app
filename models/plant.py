@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey, CheckConstraint, TIMESTAMP, text, Boolean
+from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey, CheckConstraint, TIMESTAMP, text
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -56,21 +56,3 @@ class CareLog(Base):
     plant = relationship("Plant", back_populates="care_logs")
 
 
-class PlantCareTask(Base):
-    """Scheduled care tasks for plants."""
-    __tablename__ = 'plant_care_tasks'
-
-    id = Column(Integer, primary_key=True)
-    plant_id = Column(Integer, ForeignKey('plants.id', ondelete='CASCADE'))
-    task_type = Column(String(50), CheckConstraint("task_type IN ('water', 'fertilize', 'prune', 'rotate', 'repot', 'check_health')"))
-    title = Column(String(200), nullable=False)
-    description = Column(Text, nullable=True)
-    frequency_days = Column(Integer, nullable=True)  # How often to perform the task
-    next_due_date = Column(Date, nullable=True)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(TIMESTAMP(timezone=True), nullable=False,
-                        server_default=text('now()'))
-    updated_at = Column(TIMESTAMP(timezone=True), nullable=False,
-                        server_default=text('now()'), onupdate=text('now()'))
-
-    plant = relationship("Plant", back_populates="care_tasks")
