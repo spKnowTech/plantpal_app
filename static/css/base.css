@@ -29,13 +29,15 @@ body {
     font-family: 'Poppins', Arial, sans-serif;
     color: #2f5233;
     margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 /* Complete navbar reset and rebuild */
 .navbar,
 .navbar.navbar-expand-lg {
     background: var(--navbar-bg) !important;
-    border-radius: 1.5rem !important;
+    border-radius: 1.2rem !important;
     box-shadow: var(--navbar-shadow) !important;
     margin: 1.5rem auto 2.5rem auto !important;
     max-width: 90vw !important; /* Changed to 90% of viewport width */
@@ -58,11 +60,11 @@ body {
     align-items: center !important;
     justify-content: center !important;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%) !important;
-    border-radius: 20px !important;
+    border-radius: 15px !important;
     box-shadow: 0 6px 20px rgba(47, 82, 51, 0.15) !important;
     padding: 0 !important; /* Remove all padding to let logo fill completely */
-    min-width: 220px !important;
-    height: 60px !important;
+    min-width: 200px !important;
+    height: 40px !important;
     flex-shrink: 0 !important;
     text-decoration: none !important;
     color: inherit !important;

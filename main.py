@@ -3,6 +3,12 @@ from routers import user, plant, ai_bot, dashboard
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+# Import models individually to avoid circular import issues
+from models.user import User
+from models.plant import Plant, PlantPhoto
+from models.care_task import PlantCareTask, TaskCompletionHistory
+from models.ai_bot import AILog, AIResponse, ConversationSession
+
 
 app = FastAPI(
     title="PlantPal AI Assistant",

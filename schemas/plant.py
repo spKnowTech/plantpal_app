@@ -1,13 +1,11 @@
 from datetime import date, datetime
 from pydantic import BaseModel
-from typing import Optional, List
-from schemas.care_task import PlantCareTaskResponse
+from typing import Optional
 
 class PlantBase(BaseModel):
     """Base model for plant data."""
     name: str
     species: Optional[str] = None
-    nickname: Optional[str] = None
     location: Optional[str] = None
     sunlight: Optional[str] = None
     watering_interval_days: Optional[int] = None
@@ -26,7 +24,6 @@ class PlantUpdate(BaseModel):
     """Model for updating plant details - all fields are optional."""
     name: Optional[str] = None
     species: Optional[str] = None
-    nickname: Optional[str] = None
     location: Optional[str] = None
     sunlight: Optional[str] = None
     watering_interval_days: Optional[int] = None
@@ -41,7 +38,6 @@ class PlantResponse(PlantBase):
     id: int
     user_id: int
     created_at: datetime
-    care_tasks: Optional[List[PlantCareTaskResponse]] = []
 
     class Config:
         from_attributes = True

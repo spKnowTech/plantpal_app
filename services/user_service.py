@@ -16,14 +16,12 @@ def register_user(user_data: CreateUser, db: Session) -> User:
         if existing is not None:
             raise ValueError("User already exists")
         user_data.password = hash_password(user_data.password)
-        print(user_data)
         user = User(
             full_name=user_data.full_name,
             email=user_data.email,
             password_hash=user_data.password,
             location=user_data.location
         )
-        print(user.full_name)
         return create_user(db, user)
     except Exception as e:
         print(e)
