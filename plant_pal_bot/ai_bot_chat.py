@@ -4,12 +4,11 @@ from plant_pal_bot.ai_bot_client import ask_gpt4o
 from repositories.ai_bot_repo import (
     get_complete_conversation_history, get_user_input_history
 )
-from repositories.plant_repo import find_plant_by_name, update_plant, create_default_care_tasks
+from repositories.plant_repo import find_plant_by_name, update_plant
 from models.ai_bot import AILog
 from schemas.plant import PlantUpdate
 from sqlalchemy.orm import Session
 import re
-from models.plant import Plant
 import json
 
 PLANT_KEYWORDS = [
@@ -44,6 +43,15 @@ RESTRICTED_TEXT = (
     "• Plant identification and recommendations\n\n"
     "Please ask me something about your plants or gardening! 🌱"
 )
+
+TASK_MANAGEMENT_KEYWORDS = [
+    "task", "tasks", "schedule", "reminder", "due", "complete", "completed",
+    "mark as done", "finished", "check off", "tick", "done", "todo",
+    "create task", "add task", "new task", "update task", "modify task",
+    "delete task", "remove task", "task history", "completed tasks",
+    "pending tasks", "upcoming tasks", "today's tasks", "weekly tasks",
+    "monthly tasks", "care routine", "maintenance schedule"
+]
 
 def is_plant_related(text: str) -> bool:
     """Enhanced plant-related detection with more comprehensive keywords matching."""
@@ -216,32 +224,101 @@ def check_similar_past_questions(db: Session, user_id: int, current_question: st
         print(f"Error in check_similar_past_questions: {str(e)}")
         return ""
 
+def get_user_plant_context(db: Session, user_id: int) -> dict:
+    """Get comprehensive plant context for the user including all plants, care tasks, and care history."""
+    try:
+        from repositories.plant_repo import get_user_plants, get_plant_care_tasks
+        from datetime import date, timedelta
+        
+        # Get all user plants
+        plants = get_user_plants(db, user_id)
+        
+        plant_contexts = []
+        for plant in plants:
+            # Get care tasks for this plant
+            care_tasks = get_plant_care_tasks(db, plant.id, user_id)
+            
+            # Calculate next due dates for tasks
+            upcoming_tasks = []
+            overdue_tasks = []
+            
+            for task in care_tasks:
+                if task.next_due_date:
+                    if task.next_due_date < date.today():
+                        overdue_tasks.append({
+                            'type': task.task_type,
+                            'title': task.title,
+                            'due_date': task.due_date.strftime('%Y-%m-%d'),
+                            'days_overdue': (date.today() - task.next_due_date).days
+                        })
+                    elif task.next_due_date <= date.today() + timedelta(days=7):
+                        upcoming_tasks.append({
+                            'type': task.task_type,
+                            'title': task.title,
+                            'due_date': task.next_due_date.strftime('%Y-%m-%d'),
+                            'days_until_due': (task.next_due_date - date.today()).days
+                        })
+            
+            plant_context = {
+                'id': plant.id,
+                'name': plant.name,
+                'species': plant.species,
+                'nickname': plant.nickname,
+                'location': plant.location,
+                'sunlight': plant.sunlight,
+                'watering_interval_days': plant.watering_interval_days,
+                'fertilizing_interval_days': plant.fertilizing_interval_days,
+                'last_watered': plant.last_watered.strftime('%Y-%m-%d') if plant.last_watered else None,
+                'last_fertilized': plant.last_fertilized.strftime('%Y-%m-%d') if plant.last_fertilized else None,
+                'notes': plant.notes,
+                'total_care_tasks': len(care_tasks),
+                'active_care_tasks': len([t for t in care_tasks if t.is_active]),
+                'upcoming_tasks': upcoming_tasks,
+                'overdue_tasks': overdue_tasks
+            }
+            plant_contexts.append(plant_context)
+        
+        return {
+            'total_plants': len(plants),
+            'plants': plant_contexts,
+            'total_overdue_tasks': sum(len(p['overdue_tasks']) for p in plant_contexts),
+            'total_upcoming_tasks': sum(len(p['upcoming_tasks']) for p in plant_contexts)
+        }
+        
+    except Exception as e:
+        print(f"Error getting user plant context: {str(e)}")
+        return {'total_plants': 0, 'plants': [], 'total_overdue_tasks': 0, 'total_upcoming_tasks': 0}
+
+
+
+
+
 def answer_user_question(db: Session, user_id: int, user_message: str, plant_id: int = None) -> AILog:
-    """Enhanced AI response function with complete conversation history and memory."""
+    """Enhanced AI response function with intelligent plant context and task management."""
     if not is_plant_related(user_message):
         ai_response = RESTRICTED_TEXT
-        # Don't log the interaction here since user message is already saved
-        # Just return a mock log object with the response
         class MockAILog:
             def __init__(self, response):
                 self.ai_response = response
-        
         return MockAILog(ai_response)
 
-    complete_history = get_complete_conversation_history(db, user_id) # Get complete chat history for context
-    past_reference = check_similar_past_questions(db, user_id, user_message) # Check for similar past questions
+    # Get comprehensive plant context
+    plant_context = get_user_plant_context(db, user_id)
+    complete_history = get_complete_conversation_history(db, user_id)
+    past_reference = check_similar_past_questions(db, user_id, user_message)
+    
     # Extract plant information from user message
     plant_info = extract_plant_info_from_text(user_message)
-    # If plant information is found, try to find or update the plant
+    
+    # Handle plant creation/update logic (existing code)
     if plant_info and plant_info.get('name'):
         plant_name = plant_info['name']
         existing_plant = find_plant_by_name(db, plant_name, user_id)
         if existing_plant:
-            # Update existing plant with new information
             update_data = {}
             for key, value in plant_info.items():
                 if key == 'name':
-                    continue  # Don't update the name
+                    continue
                 if key == 'watering_interval' and value:
                     update_data['watering_interval_days'] = int(value)
                 elif key in ['species', 'nickname', 'location', 'sunlight', 'notes'] and value:
@@ -251,7 +328,6 @@ def answer_user_question(db: Session, user_id: int, user_message: str, plant_id:
                 update_plant(db, existing_plant.id, PlantUpdate(**update_data), user_id)
                 plant_id = existing_plant.id
         else:
-            # Create new plant if not found
             from repositories.plant_repo import create_plant
             from schemas.plant import PlantCreate
             
@@ -264,65 +340,61 @@ def answer_user_question(db: Session, user_id: int, user_message: str, plant_id:
                 'watering_interval_days': int(plant_info.get('watering_interval', 7)),
                 'notes': plant_info.get('notes')
             }
-            
-            new_plant = create_plant(db, PlantCreate(**plant_data), user_id)
-            plant_id = new_plant.id
-
-    # Check if user wants care tasks
-    wants_care_tasks = should_create_care_tasks(user_message)
-    
-    # Build intelligent system prompt with complete history
-    history_context = ""
-    if complete_history:
-        history_context = f"""
-COMPLETE CONVERSATION HISTORY:
-{complete_history}
-
-"""
-    
-    past_reference_context = ""
-    if past_reference and past_reference != "NEW_TOPIC":
-        past_reference_context = f"""
+        
+        past_reference_context = ""
+        if past_reference and past_reference != "NEW_TOPIC":
+            past_reference_context = f"""
 PAST REFERENCE: {past_reference}
 """
-    
-    # Create intelligent system prompt
-    system_prompt = f"""You are PlantPal, an expert plant care assistant with complete memory of all past conversations.
+        
+        plant_context_summary = ""
+        if plant_context['total_plants'] > 0:
+            plant_context_summary = f"""
+USER'S PLANT CONTEXT:
+- Total plants: {plant_context['total_plants']}
+- Overdue tasks: {plant_context['total_overdue_tasks']}
+- Upcoming tasks: {plant_context['total_upcoming_tasks']}
 
-{history_context}{past_reference_context}
+PLANT DETAILS:
+"""
+            for plant in plant_context['plants']:
+                plant_context_summary += f"""
+• {plant['name']} ({plant['species'] or 'Unknown species'})
+  - Location: {plant['location']}
+  - Sunlight: {plant['sunlight'] or 'Not specified'}
+  - Watering: Every {plant['watering_interval_days'] or 'Not set'} days
+  - Last watered: {plant['last_watered'] or 'Never'}
+  - Active tasks: {plant['active_care_tasks']}
+  - Overdue: {len(plant['overdue_tasks'])} tasks
+  - Upcoming: {len(plant['upcoming_tasks'])} tasks
+"""
+        
+        system_prompt = f"""You are PlantPal, an expert plant care assistant with complete memory and plant context awareness.
+
+{past_reference_context}{plant_context_summary}
+
 INSTRUCTIONS:
 1. Be engaging and conversational. Use emojis occasionally.
-2. You have access to ALL past conversations with this user - use this knowledge to provide personalized responses.
-3. If the user asks something similar to what they've asked before, acknowledge this and reference the past conversation briefly.
-4. If they mentioned their plant type, watering schedule, light conditions, or issues in past conversations, remember and use this information.
-5. Provide specific, actionable advice based on their complete history.
-6. If they want care tasks, create them immediately if you have enough information from past conversations.
-7. Be helpful and avoid repetitive questions they've already answered.
-8. Use numbered lists when providing multiple points, but make them sequential (1, 2, 3, 4, 5...).
-9. Make the conversation feel continuous and personal - like you remember everything about their plant journey.
+2. You have access to ALL past conversations and complete plant context - use this knowledge for personalized responses.
+3. If the user has overdue tasks, gently remind them proactively.
+4. If they have upcoming tasks, mention them helpfully.
+5. Reference their specific plants by name when giving advice.
+6. Use their plant care history to provide tailored recommendations.
+7. If they mentioned plant issues in past conversations, remember and follow up.
+8. Provide specific, actionable advice based on their complete context.
+9. Use numbered lists when providing multiple points, but make them sequential (1, 2, 3, 4, 5...).
+10. Make the conversation feel continuous and personal - like you remember everything about their plant journey.
 
 Current user message: {user_message}"""
 
-    ai_response = ask_gpt4o(
-        prompt=user_message,
-        system_prompt=system_prompt
-    )
+        ai_response = ask_gpt4o(
+            prompt=user_message,
+            system_prompt=system_prompt
+        )
     
-    # Fix any numbered lists in the response to ensure proper sequential numbering
+    # Fix any numbered lists in the response
     ai_response = fix_numbered_lists(ai_response)
     
-    # If user wants care tasks, we have a plant, create them
-    if wants_care_tasks and plant_id:
-        try:
-            plant = db.query(Plant).filter(Plant.id == plant_id, Plant.user_id == user_id).first()
-            if plant:
-                care_tasks = create_default_care_tasks(db, plant_id, plant)
-                ai_response += f"\n\n✅ I've created care tasks for your {plant.name}! You'll now get reminders for watering, fertilizing, and health checks."
-        except Exception as e:
-            print(f"Error creating care tasks: {str(e)}")
-    
-    # Don't log the interaction here since user message is already saved
-    # Just return a mock log object with the response
     class MockAILog:
         def __init__(self, response):
             self.ai_response = response
@@ -389,3 +461,134 @@ Make it conversational and engaging, as if I'm reminiscing about our conversatio
     except Exception as e:
         print(f"Error in generate_detailed_conversation_summary: {str(e)}")
         return "🌱 I remember we've had some great conversations about your plants! How can I help you today? 🌿"
+
+def handle_task_creation_request(user_message: str, plant_context: dict) -> str:
+    """Handle intelligent task creation based on user's plant context."""
+    try:
+        
+        # Find the specific plant they're referring to
+        target_plant = None
+        plant_name_mentioned = None
+        
+        # Extract plant name from message
+        for plant in plant_context['plants']:
+            if plant['name'].lower() in user_message.lower():
+                target_plant = plant
+                plant_name_mentioned = plant['name']
+                break
+        
+        if not target_plant:
+            if len(plant_context['plants']) == 1:
+                target_plant = plant_context['plants'][0]
+                plant_name_mentioned = target_plant['name']
+            else:
+                return "I'd love to help you create care tasks! Which plant would you like to set up tasks for? I can see you have: " + ", ".join([p['name'] for p in plant_context['plants']])
+        
+        # Generate intelligent task suggestions based on plant type and current care
+        task_suggestions = generate_plant_specific_tasks(target_plant)
+        
+        response = f"🌱 Great! I'll help you set up care tasks for your {plant_name_mentioned}. "
+        response += f"Based on your {plant_name_mentioned}'s care needs, here are my recommendations:\n\n"
+        
+        for i, task in enumerate(task_suggestions, 1):
+            response += f"{i}. **{task['title']}** - {task['description']}\n"
+            response += f"   Frequency: {task['frequency']}\n"
+            if task.get('notes'):
+                response += f"   Note: {task['notes']}\n"
+            response += "\n"
+        
+        response += "Would you like me to create these tasks for you? Just say 'yes' or let me know if you'd like to modify any of them!"
+        
+        return response
+        
+    except Exception as e:
+        print(f"Error handling task creation: {str(e)}")
+        return "I'd be happy to help you create care tasks! Could you tell me which plant you'd like to set up tasks for?"
+
+def generate_plant_specific_tasks(plant: dict) -> list:
+    """Generate plant-specific task recommendations based on plant data."""
+    tasks = []
+    
+    # Watering task
+    watering_freq = plant.get('watering_interval_days', 7)
+    tasks.append({
+        'title': 'Water Plant',
+        'description': f'Water your {plant["name"]} thoroughly',
+        'frequency': f'Every {watering_freq} days',
+        'task_type': 'water',
+        'notes': f'Based on your current {watering_freq}-day watering schedule'
+    })
+    
+    # Fertilizing task
+    fertilizing_freq = plant.get('fertilizing_interval_days', 30)
+    tasks.append({
+        'title': 'Fertilize Plant',
+        'description': f'Apply appropriate fertilizer to {plant["name"]}',
+        'frequency': f'Every {fertilizing_freq} days',
+        'task_type': 'fertilize',
+        'notes': f'Based on your current {fertilizing_freq}-day fertilizing schedule'
+    })
+    
+    # Health check task
+    tasks.append({
+        'title': 'Health Check',
+        'description': f'Inspect {plant["name"]} for pests, diseases, or issues',
+        'frequency': 'Weekly',
+        'task_type': 'check_health',
+        'notes': 'Regular health checks help catch problems early'
+    })
+    
+    # Rotation task (for indoor plants)
+    if plant.get('location', '').lower() in ['indoor', 'inside', 'home']:
+        tasks.append({
+            'title': 'Rotate Plant',
+            'description': f'Rotate {plant["name"]} for even growth',
+            'frequency': 'Every 2 weeks',
+            'task_type': 'rotate',
+            'notes': 'Helps ensure even sunlight exposure'
+        })
+    
+    # Pruning task (for plants that need it)
+    if plant.get('species', '').lower() in ['monstera', 'ficus', 'pothos', 'philodendron']:
+        tasks.append({
+            'title': 'Prune Plant',
+            'description': f'Trim dead or overgrown parts of {plant["name"]}',
+            'frequency': 'Monthly',
+            'task_type': 'prune',
+            'notes': 'Keeps your plant healthy and well-shaped'
+        })
+    
+    return tasks
+
+def handle_task_update_request(user_message: str, plant_context: dict) -> str:
+    """Handle intelligent task updates based on user's plant context."""
+    try:
+        # Find relevant tasks to update
+        target_plant = None
+        for plant in plant_context['plants']:
+            if plant['name'].lower() in user_message.lower():
+                target_plant = plant
+                break
+        
+        if not target_plant:
+            return "I'd be happy to help you update your care tasks! Which plant's tasks would you like to modify?"
+        
+        # Analyze what needs updating
+        update_suggestions = []
+        if target_plant['overdue_tasks']:
+            update_suggestions.append(f"Address {len(target_plant['overdue_tasks'])} overdue tasks")
+        
+        response = f"🌱 I can help you update the care tasks for your {target_plant['name']}! "
+        if update_suggestions:
+            response += "Here's what I can help you with:\n\n"
+            for i, suggestion in enumerate(update_suggestions, 1):
+                response += f"{i}. {suggestion}\n"
+            response += "\nWhat specific changes would you like to make?"
+        else:
+            response += "What would you like to update about your care tasks?"
+        
+        return response
+        
+    except Exception as e:
+        print(f"Error handling task update: {str(e)}")
+        return "I'd be happy to help you update your care tasks! What changes would you like to make?"

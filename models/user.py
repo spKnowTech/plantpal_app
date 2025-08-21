@@ -14,8 +14,10 @@ class User(Base):
     location = Column(String(200), nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False,
                         server_default=text('now()'))
-
+    
+    # Relationships - using string references to avoid circular imports
     plant = relationship("Plant", back_populates="user", cascade="all, delete")
+    # Note: care_tasks relationship will be added in __init__.py
     ai_logs = relationship("AILog", back_populates="user", cascade="all, delete")
     ai_responses = relationship("AIResponse", back_populates="user", cascade="all, delete")
     conversation_sessions = relationship("ConversationSession", back_populates="user", cascade="all, delete")

@@ -20,8 +20,7 @@
   }
   .login-title {
     color: #2d7151 !important;
-    font-size: 3rem !important;
-    margin: 2.5rem 0 !important;
+    margin: 0.5rem 0 !important;
     width: 100% !important;
   }
   .login-container {
@@ -29,41 +28,25 @@
     min-height: 60vh !important;
   }
   .login-form {
-    font-size: 1.2rem !important;
     height: 100% !important;
   }
-  .login-form input {
-    font-size: 1.2rem !important;
-    padding: 0.875rem 1.25rem !important;
-  }
   .login-form label {
-    font-size: 1.2rem !important;
     font-weight: 600 !important;
     margin-bottom: 0.5rem !important;
     display: block !important;
     color: #2f5233 !important;
   }
-  .login-form button {
-    font-size: 1.3rem !important;
-    padding: 0.875rem 1.75rem !important;
-  }
-  .login-form p {
-    font-size: 1.2rem !important;
-  }
-  .register-link {
-    font-size: 1.1rem !important;
-  }
   .form-group {
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-start justify-center pt-20">
-  <div class="flex flex-col md:flex-row w-full max-w-6xl login-container">
+<div class="min-h-screen flex items-start justify-center">
+  <div class="flex flex-col md:flex-row w-full max-w-4xl login-container">
     <!-- Left Side: Login Form -->
-    <div class="w-full md:w-1/2 p-6 bg-white shadow-lg rounded-l-lg flex items-center justify-center">
+    <div class="w-full md:w-1/2 p-6 bg-white shadow-lg rounded-l-lg flex">
       <div class="w-full max-w-md space-y-6 login-form">
         <h2 class="text-2xl font-bold login-title text-center mb-6">Login To PlantPal</h2>
         
@@ -75,17 +58,17 @@
           <div class="form-group">
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
             <input type="email" name="email" id="email" required 
-                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                   class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
           </div>
           <div class="form-group">
             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
             <input type="password" name="password" id="password" required 
-                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                   class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
           </div>
-          <button type="submit" class="btn btn-save w-full py-2 px-4 font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">Login</button>
+          <button type="submit" class="btn btn-save w-full py-1 px-4 font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">Login</button>
         </form>
         
-        <p class="text-center text-sm text-gray-600 mt-4 register-link">
+        <p class="text-center text-sm text-gray-600 mt-2 register-link">
           Don't have an account? 
           <a href="/register" class="text-green-600 hover:underline">Register Here</a>
         </p>
