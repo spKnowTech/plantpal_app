@@ -24,6 +24,7 @@ class AILog(Base):
     user = relationship("User", back_populates="ai_logs")
     plant = relationship("Plant", back_populates="ai_logs")
     ai_responses = relationship("AIResponse", back_populates="ai_log", cascade="all, delete")
+    photo = relationship("PlantPhoto", back_populates="ai_logs")
 
 
 class AIResponse(Base):
@@ -42,6 +43,7 @@ class AIResponse(Base):
 
     ai_log = relationship("AILog", back_populates="ai_responses")
     user = relationship("User", back_populates="ai_responses")
+    diagnosis = relationship("PhotoDiagnosis", back_populates="ai_responses")
 
 
 class ConversationSession(Base):

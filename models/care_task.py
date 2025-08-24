@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey, Enum as 
 from sqlalchemy.orm import relationship
 from database import Base
 import enum
-from datetime import date
 
 class RecurrenceType(enum.Enum):
     NONE = "none"
@@ -30,10 +29,10 @@ class PlantCareTask(Base):
     id = Column(Integer, primary_key=True)
     plant_id = Column(Integer, ForeignKey('plants.id', ondelete='CASCADE'))
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))  # owner
-    task_type = Column(SQLEnum(TaskType), nullable=False, default=TaskType.NONE)
+    task_type = Column(SQLEnum(TaskType, name="task_type_enum"), nullable=False, default=TaskType.NONE)
     title = Column(String(200), nullable=False, unique=True)
     description = Column(Text, nullable=True)
-    recurrence_type = Column(SQLEnum(RecurrenceType), nullable=False, default=RecurrenceType.NONE)
+    recurrence_type = Column(SQLEnum(RecurrenceType, name="recurrence_type_enum"), nullable=False, default=RecurrenceType.NONE)
     frequency_days = Column(Integer, nullable=False, default=0)
     due_date = Column(Date, nullable=True)
     is_active = Column(Boolean, default=True)  # Whether the task is still active

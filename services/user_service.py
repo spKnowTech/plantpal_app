@@ -1,6 +1,8 @@
+import sys
+
 from schemas.user import CreateUser
 from models.user import User
-from repositories.user_repo import get_user_by_email, create_user
+from repositories.user_repo import get_user_by_email, create_user, get_user_by_id
 from utils.helper import hash_password, verify_password
 from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordBearer
@@ -34,7 +36,7 @@ def authenticate_user(email: str, password: str, db: Session) -> User | None:
             return user
         return None
     except Exception as e:
-        print(e)
+        print("Authentication failed: ", e)
         
 
 def get_current_user(
@@ -46,7 +48,15 @@ def get_current_user(
     if not user_id:
         return None
     try:
-        user = db.query(User).filter(User.id == int(user_id)).first()
-        return user
+        return db.query(User).filter(User.id == int(user_id)).first()
     except Exception:
+        print("get_current_user exception:", sys.exc_info()[0])
+        return None
+
+def get_current_active_user(user_id: int, db: Session = Depends(get_db)) -> User | None:
+    """Get active user from the session cookie. Returns None if unauthenticated."""
+    try:
+        return get_user_by_id(db, user_id)
+    except Exception as e:
+        print("Get current active user exception:", e)
         return None

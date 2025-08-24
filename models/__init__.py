@@ -1,8 +1,9 @@
 # Import all models
 from .user import User
-from .plant import Plant, PlantPhoto
+from .plant import Plant
 from .care_task import PlantCareTask, TaskCompletionHistory
 from .ai_bot import AILog, AIResponse, ConversationSession
+from .photo import PlantPhoto, PhotoEmbedding, PhotoDiagnosis, DiagnosisFeedback
 from sqlalchemy.orm import relationship
 
 # Now that all models are imported, we can set up the relationships
@@ -15,10 +16,13 @@ User.care_tasks = relationship("PlantCareTask", back_populates="user", cascade="
 __all__ = [
     'User',
     'Plant',
-    'PlantPhoto',
     'PlantCareTask',
     'TaskCompletionHistory',
     'AILog',
     'AIResponse',
-    'ConversationSession'
+    'ConversationSession',
+    'PlantPhoto',
+    'PhotoEmbedding',
+    'PhotoDiagnosis',
+    'DiagnosisFeedback'
 ]

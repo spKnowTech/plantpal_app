@@ -10,7 +10,7 @@ import models.user
 import models.plant
 import models.ai_bot
 import models.care_task
-
+import models.photo
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

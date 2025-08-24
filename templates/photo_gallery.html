@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block css %}
+<link rel="stylesheet" href="/static/css/photo_gallery.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="gallery-container">
+    <!-- Header Section -->
+    <div class="gallery-header">
+        <h1><i class="fas fa-camera-retro"></i> Plant Photo Gallery</h1>
+        <p>View and manage your plant photos with AI diagnoses</p>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="/photo_upload" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Upload New Photo
+            </a>
+            <a href="/ai_chat" class="btn btn-secondary">
+                <i class="fas fa-comments"></i> Chat with AI
+            </a>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        {% if stats %}
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <i class="fas fa-images"></i>
+                <div class="stat-content">
+                    <h3>{{ stats.total_photos or 0 }}</h3>
+                    <p>Total Photos</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-chart-line"></i>
+                <div class="stat-content">
+                    <h3>{{ "%.1f"|format(stats.accuracy_stats.success_rate * 100) }}%</h3>
+                    <p>Success Rate</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-microscope"></i>
+                <div class="stat-content">
+                    <h3>{{ stats.accuracy_stats.total_diagnoses or 0 }}</h3>
+                    <p>Diagnoses</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <i class="fas fa-star"></i>
+                <div class="stat-content">
+                    <h3>{{ "%.1f"|format(stats.accuracy_stats.average_confidence * 100) }}%</h3>
+                    <p>Avg Confidence</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Photo Grid -->
+    <div class="photos-grid">
+        {% if photos_with_diagnoses %}
+            {% for item in photos_with_diagnoses %}
+            <div class="photo-card" data-photo-id="{{ item.photo.id }}">
+                <!-- Photo Image -->
+                <div class="photo-image">
+                    <img src="/static/uploads/plant_photos/{{ item.photo.image_path.split('/')[-1] }}"
+                         alt="{{ item.photo.original_filename }}"
+                         loading="lazy">
+
+                    <!-- Status Badge -->
+                    <div class="status-badge status-{{ item.photo.diagnosis_status }}">
+                        {% if item.photo.diagnosis_status == 'analyzed' %}
+                            <i class="fas fa-check-circle"></i> Analyzed
+                        {% elif item.photo.diagnosis_status == 'analyzing' %}
+                            <i class="fas fa-spinner fa-spin"></i> Analyzing
+                        {% elif item.photo.diagnosis_status == 'pending' %}
+                            <i class="fas fa-clock"></i> Pending
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle"></i> {{ item.photo.diagnosis_status.title() }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Photo Info -->
+                <div class="photo-info">
+                    <h4>
+                        {% if item.plant_name %}
+                            <i class="fas fa-leaf"></i> {{ item.plant_name }}
+                        {% else %}
+                            <i class="fas fa-image"></i> {{ item.photo.original_filename or 'Plant Photo' }}
+                        {% endif %}
+                    </h4>
+
+                    <p class="upload-date">
+                        <i class="fas fa-calendar"></i>
+                        {{ item.photo.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    </p>
+
+                    {% if item.photo.upload_context %}
+                    <p class="upload-context">
+                        <i class="fas fa-quote-left"></i> {{ item.photo.upload_context }}
+                    </p>
+                    {% endif %}
+
+                    <!-- Diagnosis Summary -->
+                    {% if item.diagnosis %}
+                    <div class="diagnosis-summary">
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: {{ (item.diagnosis.confidence_score or 0) * 100 }}%"></div>
+                            <span class="confidence-text">{{ "%.1f"|format((item.diagnosis.confidence_score or 0) * 100) }}% Confidence</span>
+                        </div>
+
+                        {% if item.diagnosis.identified_issues %}
+                        <div class="issues-preview">
+                            <strong>Issues Found:</strong>
+                            {% for category, issues in item.diagnosis.identified_issues.items() %}
+                                {% if issues %}
+                                    <span class="issue-tag">{{ issues[0] }}</span>
+                                    {% if issues|length > 1 %}
+                                        <span class="issue-count">+{{ issues|length - 1 }} more</span>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if item.diagnosis.treatment_outcome %}
+                        <div class="treatment-outcome outcome-{{ item.diagnosis.treatment_outcome }}">
+                            <i class="fas fa-{{ 'check' if item.diagnosis.treatment_outcome == 'successful' else 'clock' if item.diagnosis.treatment_outcome == 'pending' else 'exclamation' }}"></i>
+                            {{ item.diagnosis.treatment_outcome.replace('_', ' ').title() }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="photo-actions">
+                        {% if item.diagnosis %}
+                        <button class="btn btn-sm btn-info view-diagnosis" data-photo-id="{{ item.photo.id }}">
+                            <i class="fas fa-eye"></i> View Full Diagnosis
+                        </button>
+                        {% else %}
+                        <button class="btn btn-sm btn-primary analyze-photo" data-photo-id="{{ item.photo.id }}">
+                            <i class="fas fa-microscope"></i> Analyze Photo
+                        </button>
+                        {% endif %}
+
+                        <button class="btn btn-sm btn-secondary chat-about-photo" data-photo-id="{{ item.photo.id }}">
+                            <i class="fas fa-comments"></i> Chat About This
+                        </button>
+
+                        <button class="btn btn-sm btn-danger delete-photo" data-photo-id="{{ item.photo.id }}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-gallery">
+                <i class="fas fa-camera fa-3x"></i>
+                <h3>No Photos Yet</h3>
+                <p>Upload your first plant photo to get started with AI diagnosis!</p>
+                <a href="/photo_upload" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Upload Your First Photo
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Diagnosis Modal -->
+<div class="modal" id="diagnosisModal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="diagnosisContent">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+        <p>Analyzing photo...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block jsfile %}
+<script src="/static/js/photo_gallery.js"></script>
+{% endblock %}

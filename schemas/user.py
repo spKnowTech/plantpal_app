@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
@@ -23,4 +23,6 @@ class ResponseUser(BaseModel):
     email: EmailStr
     location: Optional[str] = None
     created_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+    model_config = {
+        "from_attributes": True
+    }

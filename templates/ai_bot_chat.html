@@ -60,12 +60,40 @@
             {% endfor %}
         </div>
         
-        <form class="chat-input-area" method="post" action="/ai_chat" id="chat-form">
-            <textarea name="user_message" placeholder="Type a message..." autocomplete="off" required style="flex: 1 !important; padding: 0.8rem 1.2rem !important; border: 1px solid #e9ecef !important; border-radius: 25px !important; font-size: 1rem !important; background: #f8f9fa !important; min-height: 3rem !important; max-height: 120px !important; resize: none !important; line-height: 1.4 !important; font-family: inherit !important; overflow-y: auto !important; word-wrap: break-word !important; white-space: pre-wrap !important; box-sizing: border-box !important; margin: 0 !important; outline: none !important;"></textarea>
-            <button type="submit" id="send-button">
-                <i class="fas fa-paper-plane" id="send-icon"></i>
-                <div class="spinner" id="spinner"></div>
-            </button>
+        <form class="chat-input-area" method="post" action="/ai_chat" id="chat-form" enctype="multipart/form-data">
+            <div class="input-section">
+                <!-- Photo Upload Section (NEW) -->
+                <div class="photo-upload-section" id="photoUploadSection" style="display: none;">
+                    <input type="file" name="photo_file" id="photoInput" accept="image/*" style="display: none;">
+                    <input type="hidden" name="plant_id" id="plantIdInput">
+                    <div class="photo-preview" id="photoPreview"></div>
+                    <div class="photo-options">
+                        <label>Plant (Optional):</label>
+                        <select id="plantSelect">
+                            <option value="">Select a plant...</option>
+                            {% for plant in user_plants %}
+                            <option value="{{ plant.id }}">{{ plant.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Text Input -->
+                <div class="text-input-container">
+                    <textarea name="user_message" placeholder="Type a message or upload a photo for analysis..." autocomplete="off" style="flex: 1 !important; padding: 0.8rem 1.2rem !important; border: 1px solid #e9ecef !important; border-radius: 25px !important; font-size: 1rem !important; background: #f8f9fa !important; min-height: 3rem !important; max-height: 120px !important; resize: none !important; line-height: 1.4 !important; font-family: inherit !important; overflow-y: auto !important; word-wrap: break-word !important; white-space: pre-wrap !important; box-sizing: border-box !important; margin: 0 !important; outline: none !important;"></textarea>
+
+                    <!-- Input Actions -->
+                    <div class="input-actions">
+                        <button type="button" id="photoBtn" class="action-btn" title="Upload Photo">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                        <button type="submit" id="send-button">
+                            <i class="fas fa-paper-plane" id="send-icon"></i>
+                            <div class="spinner" id="spinner"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
 </div>
