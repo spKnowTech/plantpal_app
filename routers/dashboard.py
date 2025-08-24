@@ -146,6 +146,7 @@ async def add_plant(
 
     except Exception as e:
         # Redirect back to dashboard with error message
+        print(f"Error adding plant: {e}")
         response = RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
         response.set_cookie("message", "Failed to add plant. Please try again.", max_age=5, path="/")
         response.set_cookie("message_type", "error", max_age=5, path="/")

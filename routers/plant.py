@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
-from schemas.plant import PlantCreate, PlantResponse, PlantUpdate
+from schemas.plant import PlantResponse, PlantUpdate
 from services.plant_service import (
-    create_user_plant,
     get_user_plants_service,
     get_plant_service,
     update_plant_service,

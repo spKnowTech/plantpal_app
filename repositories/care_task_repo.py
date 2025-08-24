@@ -75,6 +75,17 @@ def get_all_tasks_by_date(db: Session, user_id: int, target_date: date) -> List[
         print(f"Database error: {e}")
         return []
 
+# Read all plant care task of a specific plant for a user
+def get_user_care_tasks_for_plant(db: Session, plant_id: int, user_id: int) -> List[PlantCareTask]:
+    """Get all tasks for a user of a specific plant."""
+    try:
+        return db.query(PlantCareTask).join(Plant).filter(
+            PlantCareTask.user_id == user_id,
+            PlantCareTask.plant_id == plant_id,
+            PlantCareTask.is_active == True).all()
+    except Exception as e:
+        print(f"Database error: {e}")
+        return []
 
 def get_tasks_by_date_for_plant(db: Session,
                                 plant_id: int, user_id: int,
@@ -92,7 +103,7 @@ def get_tasks_by_date_for_plant(db: Session,
 
 
 # Read delayed tasks
-def get_all_delayed_tasks(db: Session, user_id: int) -> List[PlantCareTask]:
+def get_all_delayed_tasks(db: Session, user_id: int) -> List[PlantCareTask()]:
     """Get all delayed tasks for a user."""
     try:
         return db.query(PlantCareTask).join(Plant).filter(
@@ -104,7 +115,7 @@ def get_all_delayed_tasks(db: Session, user_id: int) -> List[PlantCareTask]:
         return []
 
 
-def get_all_delayed_tasks_for_plant(db: Session, plant_id: int, user_id: int) -> List[PlantCareTask]:
+def get_all_delayed_tasks_for_plant(db: Session, plant_id: int, user_id: int) -> List[PlantCareTask()]:
     """Get all delayed tasks of a specific plant for a user."""
     try:
         return db.query(PlantCareTask).join(Plant).filter(

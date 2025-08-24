@@ -6,7 +6,7 @@ from typing import List, Optional
 
 def create_plant(db: Session, plant: PlantCreate, user_id: int) -> Plant:
     """Create a new plant in the database for the specified user."""
-    db_plant = Plant(**plant.dict(), user_id=user_id)
+    db_plant = Plant(**plant.model_dump(), user_id=user_id)
     db.add(db_plant)
     db.commit()
     db.refresh(db_plant)
@@ -27,7 +27,7 @@ def update_plant(db: Session, plant_id: int, plant_update: PlantUpdate, user_id:
     """Update a plant's details for the specified user."""
     db_plant = get_plant(db, plant_id, user_id)
     if db_plant:
-        update_data = plant_update.dict(exclude_unset=True)
+        update_data = plant_update.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_plant, field, value)
         db.commit()

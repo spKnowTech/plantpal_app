@@ -27,17 +27,4 @@ class Plant(Base):
     care_tasks = relationship("PlantCareTask", back_populates="plant", cascade="all, delete")
 
 
-class PlantPhoto(Base):
-    """Stores photos of plants for diagnosis and history."""
-    __tablename__ = 'plant_photos'
-
-    id = Column(Integer, primary_key=True)
-    plant_id = Column(Integer, ForeignKey('plants.id', ondelete='CASCADE'))
-    image_path = Column(Text, nullable=False, unique=True)
-    diagnosis = Column(Text, nullable=True)
-    uploaded_at = Column(TIMESTAMP(timezone=True), nullable=False,
-                         server_default=text('now()'))
-    # Relationships
-    plant = relationship("Plant", back_populates="photos")
-
 

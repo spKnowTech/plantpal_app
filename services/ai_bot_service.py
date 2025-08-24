@@ -162,7 +162,7 @@ def handle_ai_chat(db, user_id, user_message):
         matched_plant = get_plant_from_user_input(db, user_id, user_message)
         plant_id = matched_plant.id if matched_plant else None
         # Generate bot response (plant/gardening only)
-        ai_log = answer_user_question(db, user_id, user_message, plant_id)
+        ai_log = answer_user_question(db, user_id, user_message)
         # Save bot message
         save_bot_message_service(db, user_id, ai_log.ai_response)
         return ai_log.ai_response
